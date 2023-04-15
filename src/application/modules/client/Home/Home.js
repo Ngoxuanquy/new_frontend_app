@@ -9,6 +9,12 @@ import {
     ContributionGraph,
     StackedBarChart
 } from "react-native-chart-kit";
+import Phone from '../../../Components/Phone/Phone';
+
+import CallApi from '../../../Models/CallPostApi';
+import axios from 'axios';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+
 const Home = ({ navigation }) => {
 
     const [tuans, setTuan] = useState([])
@@ -65,6 +71,175 @@ const Home = ({ navigation }) => {
         ]
     };
 
+    // Lấy token và id của user 
+    const [id, setId] = useState()
+    const [token, setToken] = useState()
+    const [timeexp, setTimeExp] = useState()
+
+
+    useEffect(() => {
+        const getUserData = async () => {
+            try {
+                const id = await AsyncStorage.getItem('id');
+                const accessToken = await AsyncStorage.getItem('accessToken');
+                const timeExp = await AsyncStorage.getItem('timeeexp');
+
+                // Cập nhật giá trị vào state
+                setId(id);
+                setToken(accessToken);
+                setTimeExp(timeExp);
+            } catch (error) {
+                // Xử lý lỗi nếu có
+                console.error('Lỗi khi lấy dữ liệu từ AsyncStorage: ', error);
+            }
+        }
+
+        // Gọi hàm lấy dữ liệu từ AsyncStorage
+        getUserData();
+    });
+
+    //lấy token từ AsyncStorage
+    const getToken = async () => {
+        try {
+            const token = await AsyncStorage.getItem('accessToken');
+            console.log('Token đã được lấy thành công');
+            return token;
+        } catch (error) {
+            console.log('Lỗi khi lấy token: ', error);
+        }
+    };
+
+    //lấy refreshToken từ DB
+    const [resfreshToken, setResfreshToken] = useState();
+
+    const getrefeshToken = async () => {
+
+        const accessToken = await getToken()
+
+        const cleanedJwtString = accessToken.replace(/^"|"$/g, '');
+
+        const requestOptions = {
+            method: 'POST',
+            headers: {
+                "Content-Type": "application/json",
+                "x-api-key": "364785a87eeab143ff29a2cc2a61146c2e17a20b084d87ed4fc4152b7a2432dc2d9fe9aea84f83daf474e657b563749ef1b17b34547f88185779729cd4087330",
+                "authorization": cleanedJwtString,
+                "x-client-id": id
+            }
+        };
+
+        // Viết mã kiểm tra token đã hết hạn
+        fetch('http://192.168.1.135:3000/v1/api/keyUers/' + id, requestOptions)
+            .then((data) => {
+                return data.json()
+            })
+            .then(data => {
+                setResfreshToken(data.metadata[0].refeshToken)
+
+
+                if (data.status === 200) {
+                    console.log(data)
+                    return;
+                };
+            })
+
+    }
+
+
+    const [apis, setApi] = useState([])
+
+
+    // Hàm kiểm tra token đã hết hạn
+    function isTokenExpired() {
+
+        const cleanedJwtString = token && token.replace(/^"|"$/g, '');
+
+        const requestOptions = {
+            method: 'POST',
+            headers: {
+                "Content-Type": "application/json",
+                "x-api-key": "364785a87eeab143ff29a2cc2a61146c2e17a20b084d87ed4fc4152b7a2432dc2d9fe9aea84f83daf474e657b563749ef1b17b34547f88185779729cd4087330",
+                "authorization": cleanedJwtString,
+                "x-client-id": id
+            }
+        };
+
+        // Viết mã kiểm tra token đã hết hạn
+        fetch('http://192.168.1.135:3000/v1/api/product/get', requestOptions)
+            .then((data) => {
+                return data.json()
+            })
+            .then(data => {
+                setApi(data)
+                console.log(data)
+
+                if (data.status === 200) {
+                    console.log(data)
+                    return;
+                };
+            })
+    }
+
+
+    // Hàm lấy token mới
+    async function getNewToken() {
+        getrefeshToken();
+
+        const cleanedJwtString = resfreshToken && resfreshToken.replace(/^"|"$/g, '');
+
+        const requestOptions = {
+            method: 'POST',
+            headers: {
+                "Content-Type": "application/json",
+                "x-api-key": "364785a87eeab143ff29a2cc2a61146c2e17a20b084d87ed4fc4152b7a2432dc2d9fe9aea84f83daf474e657b563749ef1b17b34547f88185779729cd4087330",
+                "refeshToken": cleanedJwtString,
+                "x-client-id": id
+            }
+        };
+
+        console.log(requestOptions)
+
+        // Viết mã gọi lại token mới từ máy chủ
+        await fetch('http://192.168.1.135:3000/v1/api/handlerRefreshToken', requestOptions)
+            .then(data => {
+                return data.json()
+            })
+            .then(data => {
+                AsyncStorage.setItem('accessToken', JSON.stringify(data.metadata.tokens.accessToken));
+                AsyncStorage.setItem('timeeexp', JSON.stringify(data.metadata.tokens.timeExp));
+                setTimeExp(data.metadata.tokens.timeExp)
+                setToken(data.metadata.tokens.accessToken)
+                return data.metadata.tokens.accessToken
+            })
+            .then((token) => {
+                isTokenExpired()
+            })
+            .catch(err => {
+                console.log(err)
+            })
+
+    }
+
+
+
+    //test product vs token
+    const getProduct = () => {
+
+        //Khai báo thời gian hiện tai
+        const timeNow = Math.floor(Date.now() / 1000);
+
+        if (timeexp < timeNow) {
+            console.log('hết hạn')
+            getNewToken();
+
+        }
+        else {
+            console.log('còn hạn')
+            isTokenExpired()
+            console.log({ token })
+        }
+    }
+
 
 
     return (
@@ -105,14 +280,19 @@ const Home = ({ navigation }) => {
             </View>
 
             <View>
-                <TouchableOpacity
-                    onPress={() => navigation.replace('Login')}
-                >
+                <TouchableOpacity onPress={() => getProduct()}>
                     <Text>
-                        Logout
+                        Get Data
                     </Text>
                 </TouchableOpacity>
+
+                {/* {apis == undefined ? null : apis.map(api => (
+                    <Text>
+                        {api.name}
+                    </Text>
+                ))} */}
             </View>
+
         </ScrollView>
     )
 }

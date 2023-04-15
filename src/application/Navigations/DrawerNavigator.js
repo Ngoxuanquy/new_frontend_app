@@ -1,5 +1,5 @@
-import React, { useRef, useState } from 'react'
-import { View, Text, TouchableOpacity } from 'react-native'
+import React, { useRef, useState, useEffect } from 'react'
+import { View, Text, TouchableOpacity, StyleSheet } from 'react-native'
 import {
     createDrawerNavigator,
     DrawerContentScrollView,
@@ -41,12 +41,182 @@ import SignupParttime from '../modules/client/procedure/SignupParttime'
 import Individual from './../modules/client/user/Individual';
 import DailyReport from '../modules/client/user/DailyReport'
 import ProposalPaper from './../modules/client/procedure/ProposalPaper';
+import C_QRCode from '../Components/QRcode/QR_Code'
+import { Home } from '../modules/client/Home'
+import {
+    Button,
+    Dialog,
+    CheckBox,
+    ListItem,
+    Avatar,
+} from '@rneui/themed';
+import Phone from '../Components/Phone/Phone'
+
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import CallPostApi from '../Models/CallPostApi'
 
 const Drawer = createDrawerNavigator()
 
-const DrawerNavigator = () => {
+const DrawerNavigator = ({ navigation }) => {
+
+    const [isloadModelHeader, setIsloadModelHeader] = useState(false)
+    const [visible1, setVisible1] = useState(false);
+
+
+    const toggleSwitch = () => {
+        setIsloadModelHeader(previousState => !previousState);
+    };
+
+    const toggleDialog1 = () => {
+        setVisible1(!visible1);
+    };
+
+    //Lấy accessToken và id từ   AsyncStorage 
+
+    const [accessToken, setAccessToken] = useState("")
+    const [id, setId] = useState()
+
+
+    useEffect(() => {
+
+        AsyncStorage.getItem('id')
+            .then(res =>
+                setId(res)
+            )
+
+        AsyncStorage.getItem('accessToken')
+            .then(res =>
+                setAccessToken(res)
+            )
+    }, [])
+
+
+
+    //Xử lý logout 
+    const handerLogout = () => {
+        // console.log(accessToken)
+        // console.log(id)
+
+        const jwtString = accessToken.slice(1, -1);
+
+        // CallPostApi({
+        //     url: "/logout",
+        //     method: 'POST',
+        //     headers: {
+        //         "Content-Type": "application/json",
+        //         "x-api-key": "364785a87eeab143ff29a2cc2a61146c2e17a20b084d87ed4fc4152b7a2432dc2d9fe9aea84f83daf474e657b563749ef1b17b34547f88185779729cd4087330",
+        //         "authorization": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiZW1haWwiOiJxdXkxMSIsImlhdCI6MTY4MTM1MDUxMCwiZXhwIjoxNjgxNTIzMzEwfQ.RuhWNx9V-0Fq24UTqTfE-SpmSGjkeVnDQ8vYlnHRn9M",
+        //         "x-client-id": 1
+        //     }
+        // }
+        // )
+        // .then((data) => {
+
+        //     navigation.replace('Login')
+
+        // });
+
+
+        const requestOptions = {
+            method: 'POST',
+            headers: {
+                "Content-Type": "application/json",
+                "x-api-key": "364785a87eeab143ff29a2cc2a61146c2e17a20b084d87ed4fc4152b7a2432dc2d9fe9aea84f83daf474e657b563749ef1b17b34547f88185779729cd4087330",
+                "authorization": jwtString,
+                "x-client-id": id
+            }
+        };
+
+        // Thực hiện yêu cầu Fetch
+        fetch('http://192.168.1.135:3000/v1/api/logout', requestOptions)
+            .then((data) => {
+                AsyncStorage.clear()
+                navigation.replace('Login')
+
+            })
+
+    }
+
     return (
         <>
+
+            <Dialog
+                isVisible={visible1}
+                onBackdropPress={toggleDialog1}
+            >
+                <Dialog.Title title=" Gọi Thủ Công Cho PĐH" />
+                <Phone />
+                <TouchableOpacity onPress={() => console.log('a')}>
+                    <Text>
+                        aa
+                    </Text>
+                </TouchableOpacity>
+
+            </Dialog>
+            {isloadModelHeader && <View style={{
+                width: '70%',
+                height: 200,
+                backgroundColor: '#3c8dbc',
+                position: 'absolute',
+                top: 153,
+                right: 10,
+                zIndex: 100,
+
+            }}>
+                <View>
+                    <Text style={{
+                        color: 'white',
+                        textAlign: 'center',
+                        marginTop: 30,
+                        fontSize: 20
+                    }}>
+                        NV1
+                    </Text>
+
+                    <View style={{
+                        flexDirection: 'row',
+                        justifyContent: 'space-around',
+                        marginTop: 100
+                    }}>
+                        <TouchableOpacity style={{
+                            width: 80,
+                            height: 35,
+                            borderWidth: 0.5,
+                            borderColor: 'white',
+                            justifyContent: 'center',
+                            alignItems: 'center'
+                        }}
+                            onPress={() => navigation.navigate('Cập Nhật ProFile')}
+                        >
+                            <Text style={{
+                                color: 'white',
+                                textAlign: 'center'
+                            }}>
+                                Hồ Sơ
+                            </Text>
+                        </TouchableOpacity>
+                        <TouchableOpacity style={{
+                            width: 80,
+                            height: 35,
+                            borderWidth: 0.5,
+                            borderColor: 'white',
+                            justifyContent: 'center',
+                            alignItems: 'center'
+                        }}
+                            onPress={() => handerLogout()}
+
+                        >
+                            <Text style={{
+                                color: 'white',
+                                textAlign: 'center'
+
+                            }}>
+                                Đăng Xuất
+                            </Text>
+                        </TouchableOpacity>
+                    </View>
+                </View>
+            </View>}
             <View
                 style={{
                     backgroundColor: '#367fa9',
@@ -55,6 +225,7 @@ const DrawerNavigator = () => {
                     alignItems: 'center',
                 }}
             >
+
                 <Text
                     style={{
                         fontSize: 20,
@@ -74,8 +245,10 @@ const DrawerNavigator = () => {
                     alignItems: 'center',
                     backgroundColor: '#3c8dbc',
                     height: 60,
+                    position: 'relative'
                 }}
             >
+
                 <View
                     style={{
                         flex: 1,
@@ -91,34 +264,47 @@ const DrawerNavigator = () => {
                 </View>
                 <View style={{ flex: 1 }} />
                 <View style={{ flex: 3, flexDirection: 'row', justifyContent: 'space-between' }}>
-                    <Text
-                        style={{
-                            color: 'white',
-                            textTransform: 'uppercase',
-                        }}
+                    <TouchableOpacity
+                        onPress={toggleDialog1}
+
                     >
-                        gọi
-                    </Text>
-                    <Text
-                        style={{
-                            color: 'white',
-                            textTransform: 'uppercase',
-                        }}
-                    >
-                        android
-                    </Text>
-                    <Text
-                        style={{
-                            color: 'white',
-                            textTransform: 'uppercase',
-                        }}
-                    >
-                        ios
-                    </Text>
+                        <Text
+                            style={{
+                                color: 'white',
+                                textTransform: 'uppercase',
+                            }}
+                        >
+                            gọi
+                        </Text>
+                    </TouchableOpacity>
+
+                    <TouchableOpacity onPress={() => navigation.navigate('QRCode')}>
+                        <Text
+                            style={{
+                                color: 'white',
+                                textTransform: 'uppercase',
+                            }}
+                        >
+                            android
+                        </Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity onPress={() => navigation.navigate('QRCode')}>
+                        <Text
+                            style={{
+                                color: 'white',
+                                textTransform: 'uppercase',
+                            }}
+                        >
+                            ios
+                        </Text>
+                    </TouchableOpacity>
                 </View>
                 <View style={{ flex: 2, justifyContent: 'center', alignItems: 'center' }}>
-                    <Text style={{ color: 'white' }}>T1</Text>
+                    <TouchableOpacity onPress={() => toggleSwitch()}>
+                        <Text style={{ color: 'white' }}>T1</Text>
+                    </TouchableOpacity>
                 </View>
+
             </View>
             <Drawer.Navigator
                 useLegacyImplementation
@@ -127,7 +313,8 @@ const DrawerNavigator = () => {
                     headerShown: false,
                 }}
             >
-                <Drawer.Screen name={ROUTES.HOME_DRAWER} component={BottomTabNavigator} />
+
+                <Drawer.Screen name={ROUTES.HOME_DRAWER} component={Home} />
                 <Drawer.Screen name={ROUTES.NOTIFICATION_DRAWER} component={Notification} />
                 <Drawer.Screen name={ROUTES.PENDING_ORDERS} component={Pending_orders} />
                 <Drawer.Screen name={ROUTES.ACTIVE_ORDER} component={Active_Order} />
@@ -154,6 +341,8 @@ const DrawerNavigator = () => {
                 <Drawer.Screen name={ROUTES.INDIVIDUAL} component={Individual} />
                 <Drawer.Screen name={ROUTES.DAILY_REPORT} component={DailyReport} />
                 <Drawer.Screen name={ROUTES.PROPOSALPAPER} component={ProposalPaper} />
+                <Drawer.Screen name={ROUTES.C_QRCode} component={C_QRCode} />
+
 
 
 
@@ -163,3 +352,16 @@ const DrawerNavigator = () => {
 }
 
 export default DrawerNavigator
+
+const styles = StyleSheet.create({
+    button: {
+        borderRadius: 6,
+        width: 220,
+        margin: 20,
+    },
+    buttonContainer: {
+        margin: 20,
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+});

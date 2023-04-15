@@ -5,16 +5,52 @@ import Checkbox from 'expo-checkbox';
 import { MaterialIcons } from '@expo/vector-icons';
 import { Entypo } from '@expo/vector-icons';
 import ROUTER from '../constants';
+import CallPostApi from '../../../Models/CallPostApi';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+
 
 export default function Login({ navigation }) {
 
     const [isChecked, setChecked] = useState(false);
 
+    //khai báo value tài khoản và mật khẩu
 
+    const [taikhoan, setTaiKhoan] = useState()
+    const [matkhau, setMatKhau] = useState()
+
+
+    //check login
     function handerSubmit() {
-        navigation.replace('Home')
 
+        CallPostApi({
+            url: "/login",
+            method: 'POST',
+            body: {
+                email: taikhoan,
+                password: matkhau
+            },
+        }
+
+        ).then((data) => {
+            if (data.message === 'Success') {
+
+                console.log('37', Math.floor(Date.now() / 1000))
+
+                console.log('39', data.metadata.tokens.timeExp)
+
+                AsyncStorage.setItem('accessToken', JSON.stringify(data.metadata.tokens.accessToken));
+                AsyncStorage.setItem('id', JSON.stringify(data.metadata.shop.id));
+                AsyncStorage.setItem('timeeexp', JSON.stringify(data.metadata.tokens.timeExp));
+                navigation.replace('Home')
+            }
+            else {
+                alert(data.message)
+            }
+        });
     }
+
+
+
 
     return (
         <View style={styles.container}>

@@ -45,6 +45,9 @@ export default {
     INDIVIDUAL: 'Cá nhân',
     DAILY_REPORT: 'Báo cáo hằng ngày',
 
+    //Componemts 
+    C_QRCode: 'QRCode',
+
 
 }
 
