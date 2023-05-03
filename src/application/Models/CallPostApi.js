@@ -4,7 +4,7 @@ import axios from 'axios';
 // Hàm gọi API
 async function CallPostApi({ url, method = 'GET', headers = {
     "Content-Type": "application/json",
-    "x-api-key": "364785a87eeab143ff29a2cc2a61146c2e17a20b084d87ed4fc4152b7a2432dc2d9fe9aea84f83daf474e657b563749ef1b17b34547f88185779729cd4087330"
+    "x-api-key": "2a5f256a441f0203c12901b2d94f84b21d79447d9d5463c9c790aa534ba747259d77b2506e92615f78e2dc052f7828b3ba98454dc438fa327e4f794297373181"
     // 'Content-Type': 'application/x-www-form-urlencoded',
 }, body = null }
 ) {
@@ -12,7 +12,7 @@ async function CallPostApi({ url, method = 'GET', headers = {
     console.log(body)
 
     // Example POST method implementation:
-    const response = await fetch('http://192.168.1.135:3000/v1/api' + url, {
+    const response = await fetch('http://192.168.1.101:3000/v1/api' + url, {
         method: method, // *GET, POST, PUT, DELETE, etc.
         mode: "cors", // no-cors, *cors, same-origin
         cache: "no-cache", // *default, no-cache, reload, force-cache, only-if-cached

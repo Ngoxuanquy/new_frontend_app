@@ -42,7 +42,7 @@ const Debt_Collection_Orders = ({ navigation }) => {
                         <Text style={{
                             padding: 10
                         }}>
-                            Đơn THu Hồi Nợ
+                            Đơn Thu Hồi Nợ
                         </Text>
 
                     </View>

@@ -76,6 +76,23 @@ const Home = ({ navigation }) => {
     const [token, setToken] = useState()
     const [timeexp, setTimeExp] = useState()
 
+    // const [token, setToken] = useState('');
+
+    // useEffect(() => {
+    //     const getToken = async () => {
+    //         try {
+    //             const tokenEncrypted = await AsyncStorage.getItem('token');
+    //             const bytes = CryptoJS.AES.decrypt(tokenEncrypted, 'secret-key');
+    //             const originalToken = bytes.toString(CryptoJS.enc.Utf8);
+    //             setToken(originalToken);
+    //         } catch (error) {
+    //             console.log(error);
+    //         }
+    //     };
+    //     getToken();
+    // }, []);
+
+
 
     useEffect(() => {
         const getUserData = async () => {
@@ -116,31 +133,32 @@ const Home = ({ navigation }) => {
 
         const accessToken = await getToken()
 
+        console.log({ accessToken })
+
         const cleanedJwtString = accessToken.replace(/^"|"$/g, '');
 
         const requestOptions = {
             method: 'POST',
             headers: {
                 "Content-Type": "application/json",
-                "x-api-key": "364785a87eeab143ff29a2cc2a61146c2e17a20b084d87ed4fc4152b7a2432dc2d9fe9aea84f83daf474e657b563749ef1b17b34547f88185779729cd4087330",
+                "x-api-key": "2a5f256a441f0203c12901b2d94f84b21d79447d9d5463c9c790aa534ba747259d77b2506e92615f78e2dc052f7828b3ba98454dc438fa327e4f794297373181",
                 "authorization": cleanedJwtString,
                 "x-client-id": id
             }
         };
 
         // Viết mã kiểm tra token đã hết hạn
-        fetch('http://192.168.1.135:3000/v1/api/keyUers/' + id, requestOptions)
+        fetch('http://192.168.1.101:3000/v1/api/keyUers/' + id, requestOptions)
             .then((data) => {
                 return data.json()
             })
             .then(data => {
                 setResfreshToken(data.metadata[0].refeshToken)
 
-
-                if (data.status === 200) {
-                    console.log(data)
-                    return;
-                };
+                return data.metadata[0].refeshToken
+            })
+            .then((re) => {
+                getNewToken(re)
             })
 
     }
@@ -152,46 +170,42 @@ const Home = ({ navigation }) => {
     // Hàm kiểm tra token đã hết hạn
     function isTokenExpired() {
 
-        const cleanedJwtString = token && token.replace(/^"|"$/g, '');
+        const cleanedJwtString = token.replace(/^"|"$/g, '');
 
         const requestOptions = {
             method: 'POST',
             headers: {
                 "Content-Type": "application/json",
-                "x-api-key": "364785a87eeab143ff29a2cc2a61146c2e17a20b084d87ed4fc4152b7a2432dc2d9fe9aea84f83daf474e657b563749ef1b17b34547f88185779729cd4087330",
+                "x-api-key": "2a5f256a441f0203c12901b2d94f84b21d79447d9d5463c9c790aa534ba747259d77b2506e92615f78e2dc052f7828b3ba98454dc438fa327e4f794297373181",
                 "authorization": cleanedJwtString,
                 "x-client-id": id
             }
         };
 
         // Viết mã kiểm tra token đã hết hạn
-        fetch('http://192.168.1.135:3000/v1/api/product/get', requestOptions)
+        fetch('http://192.168.1.101:3000/v1/api/product/get', requestOptions)
             .then((data) => {
                 return data.json()
             })
             .then(data => {
                 setApi(data)
                 console.log(data)
-
-                if (data.status === 200) {
-                    console.log(data)
-                    return;
-                };
             })
     }
 
 
     // Hàm lấy token mới
-    async function getNewToken() {
-        getrefeshToken();
+    async function getNewToken(resfreshToken) {
 
-        const cleanedJwtString = resfreshToken && resfreshToken.replace(/^"|"$/g, '');
+        console.log({ resfreshToken })
+
+        const cleanedJwtString = await resfreshToken.replace(/^"|"$/g, '');
 
         const requestOptions = {
             method: 'POST',
             headers: {
                 "Content-Type": "application/json",
-                "x-api-key": "364785a87eeab143ff29a2cc2a61146c2e17a20b084d87ed4fc4152b7a2432dc2d9fe9aea84f83daf474e657b563749ef1b17b34547f88185779729cd4087330",
+                "x-api-key": "2a5f256a441f0203c12901b2d94f84b21d79447d9d5463c9c790aa534ba747259d77b2506e92615f78e2dc052f7828b3ba98454dc438fa327e4f794297373181",
                 "refeshToken": cleanedJwtString,
                 "x-client-id": id
             }
@@ -200,7 +214,7 @@ const Home = ({ navigation }) => {
         console.log(requestOptions)
 
         // Viết mã gọi lại token mới từ máy chủ
-        await fetch('http://192.168.1.135:3000/v1/api/handlerRefreshToken', requestOptions)
+        await fetch('http://192.168.1.101:3000/v1/api/handlerRefreshToken', requestOptions)
             .then(data => {
                 return data.json()
             })
@@ -228,15 +242,15 @@ const Home = ({ navigation }) => {
         //Khai báo thời gian hiện tai
         const timeNow = Math.floor(Date.now() / 1000);
 
-        if (timeexp < timeNow) {
+        if (timeexp <= timeNow) {
             console.log('hết hạn')
-            getNewToken();
+            getrefeshToken();
 
         }
         else {
             console.log('còn hạn')
             isTokenExpired()
-            console.log({ token })
+
         }
     }
 

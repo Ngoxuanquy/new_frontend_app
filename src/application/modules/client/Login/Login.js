@@ -7,6 +7,7 @@ import { Entypo } from '@expo/vector-icons';
 import ROUTER from '../constants';
 import CallPostApi from '../../../Models/CallPostApi';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import SInfo from 'react-native-sensitive-info';
 
 
 export default function Login({ navigation }) {
@@ -26,19 +27,21 @@ export default function Login({ navigation }) {
             url: "/login",
             method: 'POST',
             body: {
-                email: taikhoan,
+                username: taikhoan,
                 password: matkhau
             },
         }
 
         ).then((data) => {
             if (data.message === 'Success') {
+                const token = data.metadata.tokens.accessToken
 
-                console.log('37', Math.floor(Date.now() / 1000))
+                // const tokenEncoded = btoa(data.metadata.tokens.accessToken);
+                // console.log(tokenEncoded)
 
-                console.log('39', data.metadata.tokens.timeExp)
+                AsyncStorage.setItem('accessToken', JSON.stringify(token));
 
-                AsyncStorage.setItem('accessToken', JSON.stringify(data.metadata.tokens.accessToken));
+                // console.log('aa')
                 AsyncStorage.setItem('id', JSON.stringify(data.metadata.shop.id));
                 AsyncStorage.setItem('timeeexp', JSON.stringify(data.metadata.tokens.timeExp));
                 navigation.replace('Home')

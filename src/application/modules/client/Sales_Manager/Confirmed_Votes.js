@@ -393,7 +393,7 @@ const Confirmed_Votes = () => {
                                 {/* Bảng show thông tin */}
 
                                 <View>
-
+                                        
                                 </View>
 
                             </View>

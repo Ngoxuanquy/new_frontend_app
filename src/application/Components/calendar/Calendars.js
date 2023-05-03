@@ -5,7 +5,7 @@ import DatePicker from 'react-native-modern-datepicker'
 const Calendars = () => {
 
     const [fromDate, setFromDate] = useState('')
-    const [isFromDate, setIsFromDate] = useState(false)
+    const [isFromDate, setIsFromDate] = useState(true)
     const [endDate, setEndDate] = useState('')
     const [isEndDate, setIsEndDate] = useState('')
 
@@ -22,7 +22,7 @@ const Calendars = () => {
     return (
 
         <View>
-            <TouchableOpacity onPress={() => {
+            {/* <TouchableOpacity onPress={() => {
                 setIsFromDate(true)
             }}>
                 <Text style={{
@@ -31,7 +31,7 @@ const Calendars = () => {
                 }}>
                     Chọn:  {fromDate}
                 </Text>
-            </TouchableOpacity>
+            </TouchableOpacity> */}
             {isFromDate && (
                 <DatePicker
                     options={{

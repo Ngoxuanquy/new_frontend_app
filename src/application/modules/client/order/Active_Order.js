@@ -10,12 +10,14 @@ import SelectDropdown from 'react-native-select-dropdown'
 // import Checkbox from 'expo-checkbox';
 import { useEffect, useRef } from 'react'
 import { CheckBox } from 'react-native-elements';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+
 
 
 
 const Active_Order = ({ navigation }) => {
 
-
+    const URL = 'http://192.168.1.101:3000/v1/api';
     const [selectedIndex, setSelectedIndex] = useState(0);
 
     // khai báo button đơn hàng
@@ -48,8 +50,6 @@ const Active_Order = ({ navigation }) => {
         { id: 11, value: 'Sửa máy', isChecked: false },
         { id: 12, value: 'Sửa máy 200k', isChecked: false },
         { id: 13, value: 'Khách có NC thay lõi', isChecked: false },
-
-
     ]
 
     const [checkedItems, setCheckedItems] = useState([]);
@@ -67,7 +67,79 @@ const Active_Order = ({ navigation }) => {
         }
     };
 
-    console.log(checkedItems)
+    // Lấy token và id của user 
+    const [id, setId] = useState()
+    const [token, setToken] = useState()
+    const [timeexp, setTimeExp] = useState()
+
+
+    useEffect(() => {
+        const getUserData = async () => {
+            try {
+                const id = await AsyncStorage.getItem('id');
+                const accessToken = await AsyncStorage.getItem('accessToken');
+                const timeExp = await AsyncStorage.getItem('timeeexp');
+
+                // Cập nhật giá trị vào state
+                setId(id);
+                setToken(accessToken);
+                setTimeExp(timeExp);
+            } catch (error) {
+                // Xử lý lỗi nếu có
+                console.error('Lỗi khi lấy dữ liệu từ AsyncStorage: ', error);
+            }
+        }
+
+        // Gọi hàm lấy dữ liệu từ AsyncStorage
+        getUserData();
+    });
+
+    //lấy token từ AsyncStorage
+    const getToken = async () => {
+        try {
+            const token = await AsyncStorage.getItem('accessToken');
+            console.log('Token đã được lấy thành công');
+            return token;
+        } catch (error) {
+            console.log('Lỗi khi lấy token: ', error);
+        }
+    };
+
+
+
+    //lấy thông tin khách hàng
+
+
+    const getrefeshToken = async () => {
+        const accessToken = await getToken()
+
+        const cleanedJwtString = accessToken.replace(/^"|"$/g, '');
+
+        const requestOptions = {
+            method: 'POST',
+            headers: {
+                "Content-Type": "application/json",
+                "x-api-key": "2a5f256a441f0203c12901b2d94f84b21d79447d9d5463c9c790aa534ba747259d77b2506e92615f78e2dc052f7828b3ba98454dc438fa327e4f794297373181",
+                "authorization": cleanedJwtString,
+                "x-client-id": id
+            }
+        };
+
+        // Viết mã kiểm tra token đã hết hạn
+        fetch(URL + '/orders/get', requestOptions)
+            .then((data) => {
+                return data.json()
+            })
+            .then(data => {
+                console.log(data)
+            })
+
+    }
+
+    useEffect(() => {
+        getrefeshToken()
+    }, [id])
+
 
 
     return (
