@@ -42,6 +42,7 @@ function CustomDrawerContent(props) {
                 <Dropdown {...props} items={MENU_DRAWER.ADMINISTRATIVE_Browse} />
                 <Dropdown {...props} items={MENU_DRAWER.ADMINISTRATIVE_Update_Profile} />
 
+
             </View>
         </DrawerContentScrollView>
     )

@@ -12,11 +12,11 @@ import GetAsyncStorage from '../../../Models/GetAsyncStorage';
 import CallPostApi from '../../../Models/CallPostApi';
 import { useEffect, useRef } from 'react'
 import Spinner from 'react-native-loading-spinner-overlay';
-
+import { useFocusEffect } from '@react-navigation/native';
 
 const Pending_orders = ({ navigation }) => {
 
-    const URL = 'http://192.168.1.101:3000/v1/api';
+    const URL = 'http://192.168.0.102:3000/v1/api';
 
     const [selectedIndex, setSelectedIndex] = useState(0);
 
@@ -45,7 +45,7 @@ const Pending_orders = ({ navigation }) => {
 
 
     //Khai báo Api của khách hàng
-    const [contacts, setContact] = useState([])
+    const [orders, setOrders] = useState([])
 
     //bật tắt model
     const [isModalVisible, setModalVisible] = useState(false);
@@ -131,6 +131,7 @@ const Pending_orders = ({ navigation }) => {
         getUserData();
     });
 
+
     //lấy token từ AsyncStorage
     const getToken = async () => {
         try {
@@ -142,12 +143,28 @@ const Pending_orders = ({ navigation }) => {
         }
     };
 
+
+    //lấy id từ AsyncStorage
+    const getID = async () => {
+        try {
+            const id = await AsyncStorage.getItem('id');
+            console.log('Token đã được lấy thành công');
+            return id;
+        } catch (error) {
+            console.log('Lỗi khi lấy token: ', error);
+        }
+    };
+
     //lấy thông tin khách hàng
+    const [contacts, setContacts] = useState([])
 
+    const GetApiorders = async () => {
+        console.log(id)
 
-    const getrefeshToken = async () => {
 
         const accessToken = await getToken()
+        const id = await getID()
+
 
         const cleanedJwtString = accessToken.replace(/^"|"$/g, '');
 
@@ -155,37 +172,72 @@ const Pending_orders = ({ navigation }) => {
             method: 'POST',
             headers: {
                 "Content-Type": "application/json",
-                "x-api-key": "2a5f256a441f0203c12901b2d94f84b21d79447d9d5463c9c790aa534ba747259d77b2506e92615f78e2dc052f7828b3ba98454dc438fa327e4f794297373181",
+                "x-api-key": "a9ae60c5abf0771d5cfc763a143bd796723733b7d2fa537e940dbad50edfcf1bf0f8d25096264293e2d9deb9df2515a241bedda3045777be6ebc38c35c3ac141",
                 "authorization": cleanedJwtString,
                 "x-client-id": id
             }
         };
 
         // Lấy dữ liệu của khách hàng
-        fetch(URL + '/contacts/get', requestOptions)
+        fetch(URL + '/orders/getpending/' + id, requestOptions)
             .then((data) => {
                 return data.json()
             })
             .then(data => {
-                setContact(data.metadata)
-                setIsLoading(false)
+                // if (data.metadata && Array.isArray(data.metadata)) {
+                setOrders(data.metadata);
+                const metadata = data.metadata;
+                const contacts = metadata.map((item) => item.contacts);
+                setContacts(data.metadata);
+                setIsLoading(false);
+                // } else {
+                //     console.error('Invalid API response:', data);
+                // }
+
             })
 
     }
 
-    useEffect(() => {
-        getrefeshToken()
-    }, [id])
+    // console.log(contacts)
 
+    // console.log(contacts.flat())
+
+    useEffect(() => {
+        GetApiorders()
+    }, [])
+
+
+
+    // console.log(orders)
 
 
     //xử lý khi đặt đơn
-    const handerSubmit = () => {
+    const handerSubmit = async (id1) => {
 
+        console.log(id1)
+        const accessToken = await getToken()
+
+        const cleanedJwtString = accessToken.replace(/^"|"$/g, '');
+        const requestOptions = {
+            method: 'POST',
+            headers: {
+                "Content-Type": "application/json",
+                "x-api-key": "a9ae60c5abf0771d5cfc763a143bd796723733b7d2fa537e940dbad50edfcf1bf0f8d25096264293e2d9deb9df2515a241bedda3045777be6ebc38c35c3ac141",
+                "authorization": cleanedJwtString,
+                "x-client-id": id
+            }
+        };
+
+        // Lấy dữ liệu của khách hàng
+        fetch(URL + '/orders/update/' + id1, requestOptions)
+            .then(() => {
+                GetApiorders()
+            })
 
 
     }
 
+    console.log(contacts)
 
 
     return (
@@ -558,7 +610,7 @@ const Pending_orders = ({ navigation }) => {
                                             backgroundColor: '#3c8dbc',
                                             width: '90%'
                                         }}
-                                        onPress={() => handerSubmit()}
+                                    // onPress={() => handerSubmit()}
                                     >
                                         <Text style={{
                                             textAlign: 'center',
@@ -666,14 +718,14 @@ const Pending_orders = ({ navigation }) => {
                     />
                     <View>
                         <View>
-                            {contacts && contacts.map(contact => (
-                                <View key={contact.id}>
+                            {contacts && contacts.map(order => (
+                                <View key={order.id}>
                                     <View style={{
                                         width: '100%'
 
                                     }}>
                                         <Text>
-                                            {contact.name}
+                                            {order.id}
                                         </Text>
                                         <View style={{
                                             flexDirection: 'row',
@@ -684,10 +736,11 @@ const Pending_orders = ({ navigation }) => {
                                             >
                                                 <Text>
                                                     Hủy
+                                                    {order.ordersId}
                                                 </Text>
                                             </TouchableOpacity>
                                             <TouchableOpacity
-                                                onPress={() => handerSubmit()}
+                                                onPress={() => handerSubmit(order.id)}
                                             >
                                                 <Text>
                                                     Xác Nhận

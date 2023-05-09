@@ -54,6 +54,8 @@ import Phone from '../Components/Phone/Phone'
 
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import CallPostApi from '../Models/CallPostApi'
+import ChupAnh from '../Components/Chup/Chup'
+import ThanhToan from '../modules/client/order/ThanhToan'
 
 const Drawer = createDrawerNavigator()
 
@@ -121,7 +123,7 @@ const DrawerNavigator = ({ navigation }) => {
             method: 'POST',
             headers: {
                 "Content-Type": "application/json",
-                "x-api-key": "2a5f256a441f0203c12901b2d94f84b21d79447d9d5463c9c790aa534ba747259d77b2506e92615f78e2dc052f7828b3ba98454dc438fa327e4f794297373181",
+                "x-api-key": "a9ae60c5abf0771d5cfc763a143bd796723733b7d2fa537e940dbad50edfcf1bf0f8d25096264293e2d9deb9df2515a241bedda3045777be6ebc38c35c3ac141",
                 "authorization": jwtString,
                 "x-client-id": id
             }
@@ -342,8 +344,7 @@ const DrawerNavigator = ({ navigation }) => {
                 <Drawer.Screen name={ROUTES.DAILY_REPORT} component={DailyReport} />
                 <Drawer.Screen name={ROUTES.PROPOSALPAPER} component={ProposalPaper} />
                 <Drawer.Screen name={ROUTES.C_QRCode} component={C_QRCode} />
-
-
+                <Drawer.Screen name={ROUTES.ThanhToan} component={ThanhToan} />
 
 
             </Drawer.Navigator>

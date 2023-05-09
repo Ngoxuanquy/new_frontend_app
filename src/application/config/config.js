@@ -1,18 +1,15 @@
 import firebase from 'firebase/compat/app'
-
 import 'firebase/compat/auth'
-
 import 'firebase/compat/firestore'
-
 import 'firebase/compat/storage'
 
 const firebaseConfig = {
-    apiKey: 'AIzaSyBPJ4BxGacrlcF0bIxZqbd3TOrcapDd_AQ',
-    authDomain: 'test-1f299.firebaseapp.com',
-    projectId: 'test-1f299',
-    storageBucket: 'test-1f299.appspot.com',
-    messagingSenderId: '915482232234',
-    appId: '1:915482232234:web:c34b7f6c51b4d2a97e97d3',
+    apiKey: 'AIzaSyDEHe7IFWBYhDOSV5pynPuzwCMi0ggay8Q',
+    authDomain: 'test-70d99.firebaseapp.com',
+    projectId: 'test-70d99',
+    storageBucket: 'test-70d99.appspot.com',
+    messagingSenderId: '1035909150314',
+    appId: '1:1035909150314:web:840ee97bc0d994f0a53c13',
 }
 
 if (!firebase.apps.length) {

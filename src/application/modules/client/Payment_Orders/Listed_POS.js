@@ -27,7 +27,6 @@ const Listed_POS = () => {
 
         // console.log(getFormattedDate(firstDayOfWeek))
 
-
         // Khai báo một mảng để lưu trữ các ngày trong tuần
         var daysOfWeek = [];
 

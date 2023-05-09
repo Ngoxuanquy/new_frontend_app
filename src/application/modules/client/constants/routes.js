@@ -47,6 +47,9 @@ export default {
 
     //Componemts 
     C_QRCode: 'QRCode',
+    ChupAnh: 'Chup',
+    ThanhToan: 'ThanhToan',
+
 
 
 }
