@@ -1,23 +1,75 @@
 import React, { useEffect, useState } from 'react'
 import { ScrollView } from 'react-native';
 import { View, Text, Button, TouchableOpacity, Dimensions } from 'react-native'
-import {
-    LineChart,
-    BarChart,
-    PieChart,
-    ProgressChart,
-    ContributionGraph,
-    StackedBarChart
-} from "react-native-chart-kit";
+// import {
+//     LineChart,
+//     BarChart,
+//     PieChart,
+//     ProgressChart,
+//     ContributionGraph,
+//     StackedBarChart
+// } from "react-native-chart-kit";
 import Phone from '../../../Components/Phone/Phone';
 
 import CallApi from '../../../Models/CallPostApi';
-import axios from 'axios';
+import Axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-
+import * as Notifications from 'expo-notifications';
+import * as Permissions from 'expo-permissions';
 const Home = ({ navigation }) => {
 
     const [tuans, setTuan] = useState([])
+
+    Notifications.setNotificationHandler({
+        handleNotification: async () => ({
+            shouldShowAlert: true,
+            shouldPlaySound: false,
+            shouldSetBadge: false,
+        }),
+    });
+
+    const getNotification = async () => {
+
+        const { status } = await Notifications.getPermissionsAsync()
+        if (status !== 'granted') {
+            const { status } = await Notifications.requestPermissionsAsync()
+            if (status !== 'granted') {
+                alert('Looix')
+                return;
+            }
+        }
+
+        const tokenData = await Notifications.getExpoPushTokenAsync()
+        const token = await tokenData.data
+        console.log(token);
+        const message = {
+            to: token,
+            title: "Bạn đã đăng nhập !!",
+            body: 'Nhấn Vào Để Xem Chi Tiết!!'
+        }
+
+        await Axios.post('https://api.expo.dev/v2/push/send', message)
+            .catch(err => console.log(err))
+
+    }
+    // async function Gui() {
+
+    //     const message = {
+    //         to: token,
+    //         sound: 'https://nhacchuong123.com/nhac-chuong/abc/Nhac-chuong-iphone-14-mac-dinh.mp3',
+    //         title: taikhoan + " Muốn Mượn Hàng Của Bạn!!",
+    //         body: 'Nhấn Vào Để Xem Chi Tiết!!'
+    //     }
+
+    //     await Axios.post('https://api.expo.dev/v2/push/send', message)
+    //         .catch(err => console.log(err))
+
+    // }
+
+    useEffect(() => {
+        getNotification()
+        // Gui()
+    }, [])
 
     function getFormattedDate(date) {
         let year = date.getFullYear();
@@ -141,7 +193,7 @@ const Home = ({ navigation }) => {
             method: 'POST',
             headers: {
                 "Content-Type": "application/json",
-                "x-api-key": "a9ae60c5abf0771d5cfc763a143bd796723733b7d2fa537e940dbad50edfcf1bf0f8d25096264293e2d9deb9df2515a241bedda3045777be6ebc38c35c3ac141",
+                "x-api-key": "39081e3d21dc8f2c3fddaff1ae20142b0ae3a0c1849da2a3bd753ddf8db599d983b28c681972c5ecc8990f164527f5d4a0a1820240de22e80b0f61dfbdedde7d",
                 "authorization": cleanedJwtString,
                 "x-client-id": id
             }
@@ -178,7 +230,7 @@ const Home = ({ navigation }) => {
             method: 'POST',
             headers: {
                 "Content-Type": "application/json",
-                "x-api-key": "a9ae60c5abf0771d5cfc763a143bd796723733b7d2fa537e940dbad50edfcf1bf0f8d25096264293e2d9deb9df2515a241bedda3045777be6ebc38c35c3ac141",
+                "x-api-key": "39081e3d21dc8f2c3fddaff1ae20142b0ae3a0c1849da2a3bd753ddf8db599d983b28c681972c5ecc8990f164527f5d4a0a1820240de22e80b0f61dfbdedde7d",
                 "authorization": cleanedJwtString,
                 "x-client-id": id
             }
@@ -207,7 +259,7 @@ const Home = ({ navigation }) => {
             method: 'POST',
             headers: {
                 "Content-Type": "application/json",
-                "x-api-key": "a9ae60c5abf0771d5cfc763a143bd796723733b7d2fa537e940dbad50edfcf1bf0f8d25096264293e2d9deb9df2515a241bedda3045777be6ebc38c35c3ac141",
+                "x-api-key": "39081e3d21dc8f2c3fddaff1ae20142b0ae3a0c1849da2a3bd753ddf8db599d983b28c681972c5ecc8990f164527f5d4a0a1820240de22e80b0f61dfbdedde7d",
                 "refeshToken": cleanedJwtString,
                 "x-client-id": id
             }
@@ -280,7 +332,7 @@ const Home = ({ navigation }) => {
 
             <View style={{ marginTop: 20 }}>
                 <Text style={{ fontSize: 18, textAlign: 'center' }}>Biểu đồ số đơn hằng ngày</Text>
-                <BarChart
+                {/* <BarChart
                     style={{
                         // width: 400,
                         // height: 400
@@ -292,7 +344,7 @@ const Home = ({ navigation }) => {
                     yAxisLabel="Đơn"
                     chartConfig={chartConfig}
                     verticalLabelRotation={30}
-                />
+                /> */}
             </View>
 
             <View>

@@ -6,15 +6,15 @@ import { SearchBar } from '@rneui/themed';
 import ThemeConText from '../../../config/themeConText';
 import OrderAction from '../../../Components/cart/OrderAction';
 import Spinner from 'react-native-loading-spinner-overlay';
+import { useFocusEffect } from '@react-navigation/native';
 
 
 export default function ThanhToan({ route, navigation }) {
 
     const { id_tran } = route.params;
 
-    console.log({ id_tran })
 
-    const URL = 'http://192.168.0.102:3000/v1/api';
+    const URL = 'http://192.168.1.101:3000/v1/api';
 
     // const { name, id_chuyen, number } = route.params;
 
@@ -114,75 +114,122 @@ export default function ThanhToan({ route, navigation }) {
     //Lấy apis product
     const [products, setProduct] = useState([])
 
-    const GetApiorders = async (id1) => {
 
-        console.log(id1)
+    // 
+    // useEffect(() => {
+    //     GetApiorders(transactionId)
+    // }, [])
 
-        const accessToken = await getToken()
-        const id = await getID()
+    // console.log(cart)
+
+    //Xử lý lấy id cửa transaction_sell_line
+
+    const [transactionId, setTransactionId] = useState()
+
+    useFocusEffect(
+        React.useCallback(() => {
+            const getId = async (id_tran) => {
+                const accessToken = await getToken()
+                const id = await getID()
+
+                const cleanedJwtString = accessToken.replace(/^"|"$/g, '');
+
+                const requestOptions = {
+                    method: 'POST',
+                    headers: {
+                        "Content-Type": "application/json",
+                        "x-api-key": "39081e3d21dc8f2c3fddaff1ae20142b0ae3a0c1849da2a3bd753ddf8db599d983b28c681972c5ecc8990f164527f5d4a0a1820240de22e80b0f61dfbdedde7d",
+                        "authorization": cleanedJwtString,
+                        "x-client-id": id
+                    },
+                };
 
 
-        const cleanedJwtString = accessToken.replace(/^"|"$/g, '');
+                // Lấy dữ liệu của khách hàng
+                fetch(URL + '/transactions/getbyconcactid/' + id_tran, requestOptions)
+                    .then((data) => data.json())
+                    .then((data) => {
 
-        const requestOptions = {
-            method: 'POST',
-            headers: {
-                "Content-Type": "application/json",
-                "x-api-key": "a9ae60c5abf0771d5cfc763a143bd796723733b7d2fa537e940dbad50edfcf1bf0f8d25096264293e2d9deb9df2515a241bedda3045777be6ebc38c35c3ac141",
-                "authorization": cleanedJwtString,
-                "x-client-id": id
+                        setTransactionId(data.metadata[0].id)
+                        // console.log(data.metadata[0].id)
+
+                        const requestOptions1 = {
+                            method: 'POST',
+                            headers: {
+                                "Content-Type": "application/json",
+                                "x-api-key": "39081e3d21dc8f2c3fddaff1ae20142b0ae3a0c1849da2a3bd753ddf8db599d983b28c681972c5ecc8990f164527f5d4a0a1820240de22e80b0f61dfbdedde7d",
+                                "authorization": cleanedJwtString,
+                                "x-client-id": id
+                            }
+                        };
+
+                        // Lấy dữ liệu của khách hàng
+                        fetch(URL + '/transactions_sell_line/get/' + data.metadata[0].id, requestOptions1)
+                            .then((data) => {
+                                return data.json()
+                            })
+                            .then(data => {
+                                console.log(data)
+                                if (data.metadata != []) {
+                                    const products = data.metadata && data.metadata.map(item => {
+                                        const product = item.product;
+                                        product.quantity = item.quantity;
+
+                                        return product;
+                                    })
+                                    setCart(products)
+                                    setIsLoading(false)
+                                }
+                                else {
+                                    setCart([])
+                                    setIsLoading(false)
+
+                                }
+                            })
+                    })
             }
-        };
+            getId(id_tran)
+        }, [id_tran])
+    );
 
 
-        // Lấy dữ liệu của khách hàng
-        fetch(URL + '/product/get', requestOptions)
-            .then((data) => {
-                return data.json()
-            })
-            .then(data => {
-                // console.log(data.message)
-                setProduct(data.metadata)
-            })
+    // useEffect(() => {
+    //     getId(id_tran)
+    // })
 
-        const requestOptions1 = {
-            method: 'POST',
-            headers: {
-                "Content-Type": "application/json",
-                "x-api-key": "a9ae60c5abf0771d5cfc763a143bd796723733b7d2fa537e940dbad50edfcf1bf0f8d25096264293e2d9deb9df2515a241bedda3045777be6ebc38c35c3ac141",
-                "authorization": cleanedJwtString,
-                "x-client-id": id
+    useFocusEffect(
+        React.useCallback(() => {
+
+            const GetApiorders = async () => {
+
+                const accessToken = await getToken()
+                const id = await getID()
+                const cleanedJwtString = accessToken.replace(/^"|"$/g, '');
+
+                const requestOptions = {
+                    method: 'POST',
+                    headers: {
+                        "Content-Type": "application/json",
+                        "x-api-key": "39081e3d21dc8f2c3fddaff1ae20142b0ae3a0c1849da2a3bd753ddf8db599d983b28c681972c5ecc8990f164527f5d4a0a1820240de22e80b0f61dfbdedde7d",
+                        "authorization": cleanedJwtString,
+                        "x-client-id": id
+                    }
+                };
+
+
+                // Lấy dữ liệu của khách hàng
+                fetch(URL + '/product/get', requestOptions)
+                    .then((data) => {
+                        return data.json()
+                    })
+                    .then(data => {
+                        // console.log(data.message)
+                        setProduct(data.metadata)
+                    })
             }
-        };
-
-        // Lấy dữ liệu của khách hàng
-        fetch(URL + '/transactions_sell_line/get/' + id_tran, requestOptions1)
-            .then((data) => {
-                return data.json()
-            })
-            .then(data => {
-                // const products = data.metadata.map(item => item.product);
-
-                // setCart(products);
-
-
-                const products = data.metadata && data.metadata.map(item => {
-                    const product = item.product;
-                    product.quantity = item.quantity;
-                    return product;
-                });
-
-                console.log(products);
-                setCart(products)
-                setIsLoading(false)
-
-
-            })
-    }
-
-    useEffect(() => {
-        GetApiorders()
-    }, [id_tran])
+            GetApiorders()
+        }, [])
+    );
 
 
     //Xử lý chọn hàng 
@@ -191,25 +238,24 @@ export default function ThanhToan({ route, navigation }) {
         const accessToken = await getToken()
         const id = await getID()
 
-
         const cleanedJwtString = accessToken.replace(/^"|"$/g, '');
 
         const requestOptions = {
             method: 'POST',
             headers: {
                 "Content-Type": "application/json",
-                "x-api-key": "a9ae60c5abf0771d5cfc763a143bd796723733b7d2fa537e940dbad50edfcf1bf0f8d25096264293e2d9deb9df2515a241bedda3045777be6ebc38c35c3ac141",
+                "x-api-key": "39081e3d21dc8f2c3fddaff1ae20142b0ae3a0c1849da2a3bd753ddf8db599d983b28c681972c5ecc8990f164527f5d4a0a1820240de22e80b0f61dfbdedde7d",
                 "authorization": cleanedJwtString,
                 "x-client-id": id
             },
             body: JSON.stringify({
-
-                transactionId: id_tran,
+                transactionId: transactionId,
                 productId: id1,
                 quantity: 1,
                 price: product.price,
                 item_tax: 0,
-                variation_id: 1
+                variation_id: 1,
+                contactId: id_tran
 
             })
         };
@@ -223,30 +269,25 @@ export default function ThanhToan({ route, navigation }) {
                     method: 'POST',
                     headers: {
                         "Content-Type": "application/json",
-                        "x-api-key": "a9ae60c5abf0771d5cfc763a143bd796723733b7d2fa537e940dbad50edfcf1bf0f8d25096264293e2d9deb9df2515a241bedda3045777be6ebc38c35c3ac141",
+                        "x-api-key": "39081e3d21dc8f2c3fddaff1ae20142b0ae3a0c1849da2a3bd753ddf8db599d983b28c681972c5ecc8990f164527f5d4a0a1820240de22e80b0f61dfbdedde7d",
                         "authorization": cleanedJwtString,
                         "x-client-id": id
                     }
                 };
 
                 // Lấy dữ liệu của khách hàng
-                fetch(URL + '/transactions_sell_line/get/' + id_tran, requestOptions1)
+                fetch(URL + '/transactions_sell_line/get/' + transactionId, requestOptions1)
                     .then((data) => {
                         return data.json()
                     })
                     .then(data => {
-                        // const products = data.metadata.map(item => item.product);
 
-                        // setCart(products);
-
-
-                        const products = data.metadata.map(item => {
+                        const products = data.metadata && data.metadata.map(item => {
                             const product = item.product;
                             product.quantity = item.quantity;
                             return product;
                         });
 
-                        console.log(products);
                         setCart(products)
 
                     })
@@ -254,7 +295,20 @@ export default function ThanhToan({ route, navigation }) {
             })
     }
 
+    // console.log(cart)
 
+
+    //Tính tổng tiền
+
+    const [total, setTotal] = useState()
+
+    useEffect(() => {
+        let totals = 0;
+        for (let i = 0; i < cart.length; i++) {
+            totals += cart[i].price * cart[i].quantity;
+        }
+        setTotal(totals)
+    }, [cart])
 
 
     const handerThanhToan = async () => {
@@ -268,7 +322,7 @@ export default function ThanhToan({ route, navigation }) {
             method: 'POST',
             headers: {
                 "Content-Type": "application/json",
-                "x-api-key": "a9ae60c5abf0771d5cfc763a143bd796723733b7d2fa537e940dbad50edfcf1bf0f8d25096264293e2d9deb9df2515a241bedda3045777be6ebc38c35c3ac141",
+                "x-api-key": "39081e3d21dc8f2c3fddaff1ae20142b0ae3a0c1849da2a3bd753ddf8db599d983b28c681972c5ecc8990f164527f5d4a0a1820240de22e80b0f61dfbdedde7d",
                 "authorization": cleanedJwtString,
                 "x-client-id": id
             },
@@ -281,6 +335,10 @@ export default function ThanhToan({ route, navigation }) {
             .then((data) => {
                 fetch(URL + '/transactions/update/' + id_tran, requestOptions1)
                 navigation.navigate('Đơn đang thực hiện')
+            })
+            .then(() => {
+                fetch(URL + '/orderhistory/update/' + id_tran, requestOptions1)
+
             })
 
     }
@@ -299,12 +357,12 @@ export default function ThanhToan({ route, navigation }) {
             method: 'POST',
             headers: {
                 "Content-Type": "application/json",
-                "x-api-key": "a9ae60c5abf0771d5cfc763a143bd796723733b7d2fa537e940dbad50edfcf1bf0f8d25096264293e2d9deb9df2515a241bedda3045777be6ebc38c35c3ac141",
+                "x-api-key": "39081e3d21dc8f2c3fddaff1ae20142b0ae3a0c1849da2a3bd753ddf8db599d983b28c681972c5ecc8990f164527f5d4a0a1820240de22e80b0f61dfbdedde7d",
                 "authorization": cleanedJwtString,
                 "x-client-id": id
             },
             body: JSON.stringify({
-                transactionId: id_tran,
+                transactionId: transactionId,
                 productId: productId,
                 quantity: quantity
             })
@@ -323,14 +381,14 @@ export default function ThanhToan({ route, navigation }) {
                     method: 'POST',
                     headers: {
                         "Content-Type": "application/json",
-                        "x-api-key": "a9ae60c5abf0771d5cfc763a143bd796723733b7d2fa537e940dbad50edfcf1bf0f8d25096264293e2d9deb9df2515a241bedda3045777be6ebc38c35c3ac141",
+                        "x-api-key": "39081e3d21dc8f2c3fddaff1ae20142b0ae3a0c1849da2a3bd753ddf8db599d983b28c681972c5ecc8990f164527f5d4a0a1820240de22e80b0f61dfbdedde7d",
                         "authorization": cleanedJwtString,
                         "x-client-id": id
                     }
                 };
 
                 // Lấy dữ liệu của khách hàng
-                fetch(URL + '/transactions_sell_line/get/' + id_tran, requestOptions1)
+                fetch(URL + '/transactions_sell_line/get/' + transactionId, requestOptions1)
                     .then((data) => {
                         return data.json()
                     })
@@ -346,13 +404,12 @@ export default function ThanhToan({ route, navigation }) {
                         // setCart(products);
 
                         //lấy trường quantity trong bảng transaction_sell_line vào products
-                        const products = data.metadata.map(item => {
+                        const products = data.metadata && data.metadata.map(item => {
                             const product = item.product;
                             product.quantity = item.quantity;
                             return product;
                         });
 
-                        console.log(products);
                         setCart(products)
 
                     })
@@ -373,12 +430,12 @@ export default function ThanhToan({ route, navigation }) {
             method: 'POST',
             headers: {
                 "Content-Type": "application/json",
-                "x-api-key": "a9ae60c5abf0771d5cfc763a143bd796723733b7d2fa537e940dbad50edfcf1bf0f8d25096264293e2d9deb9df2515a241bedda3045777be6ebc38c35c3ac141",
+                "x-api-key": "39081e3d21dc8f2c3fddaff1ae20142b0ae3a0c1849da2a3bd753ddf8db599d983b28c681972c5ecc8990f164527f5d4a0a1820240de22e80b0f61dfbdedde7d",
                 "authorization": cleanedJwtString,
                 "x-client-id": id
             },
             body: JSON.stringify({
-                transactionId: id_tran,
+                transactionId: transactionId,
                 productId: productId,
                 quantity: quantity
             })
@@ -397,14 +454,14 @@ export default function ThanhToan({ route, navigation }) {
                     method: 'POST',
                     headers: {
                         "Content-Type": "application/json",
-                        "x-api-key": "a9ae60c5abf0771d5cfc763a143bd796723733b7d2fa537e940dbad50edfcf1bf0f8d25096264293e2d9deb9df2515a241bedda3045777be6ebc38c35c3ac141",
+                        "x-api-key": "39081e3d21dc8f2c3fddaff1ae20142b0ae3a0c1849da2a3bd753ddf8db599d983b28c681972c5ecc8990f164527f5d4a0a1820240de22e80b0f61dfbdedde7d",
                         "authorization": cleanedJwtString,
                         "x-client-id": id
                     }
                 };
 
                 // Lấy dữ liệu của khách hàng
-                fetch(URL + '/transactions_sell_line/get/' + id_tran, requestOptions1)
+                fetch(URL + '/transactions_sell_line/get/' + transactionId, requestOptions1)
                     .then((data) => {
                         return data.json()
                     })
@@ -420,13 +477,12 @@ export default function ThanhToan({ route, navigation }) {
                         // setCart(products);
 
                         //lấy trường quantity trong bảng transaction_sell_line vào products
-                        const products = data.metadata.map(item => {
+                        const products = data.metadata && data.metadata.map(item => {
                             const product = item.product;
                             product.quantity = item.quantity;
                             return product;
                         });
 
-                        console.log(products);
                         setCart(products)
 
                     })
@@ -446,13 +502,13 @@ export default function ThanhToan({ route, navigation }) {
             method: 'POST',
             headers: {
                 "Content-Type": "application/json",
-                "x-api-key": "a9ae60c5abf0771d5cfc763a143bd796723733b7d2fa537e940dbad50edfcf1bf0f8d25096264293e2d9deb9df2515a241bedda3045777be6ebc38c35c3ac141",
+                "x-api-key": "39081e3d21dc8f2c3fddaff1ae20142b0ae3a0c1849da2a3bd753ddf8db599d983b28c681972c5ecc8990f164527f5d4a0a1820240de22e80b0f61dfbdedde7d",
                 "authorization": cleanedJwtString,
                 "x-client-id": id
             },
             body: JSON.stringify({
                 productId: productId,
-                transactionId: id_tran,
+                transactionId: transactionId,
 
             })
         };
@@ -460,23 +516,23 @@ export default function ThanhToan({ route, navigation }) {
         // Lấy dữ liệu của khách hàng
         fetch(URL + '/transactions_sell_line/delete', requestOptions1)
             .then((data) => {
-                fetch(URL + '/transactions_sell_line/get/' + id_tran, requestOptions1)
+                fetch(URL + '/transactions_sell_line/get/' + transactionId, requestOptions1)
                     .then((data) => {
                         return data.json()
                     })
                     .then(data => {
 
                         //lấy trường quantity trong bảng transaction_sell_line vào products
-                        const products = data.metadata.map(item => {
+                        const products = data.metadata && data.metadata.map(item => {
                             const product = item.product;
                             product.quantity = item.quantity;
                             return product;
                         });
 
-                        console.log(products);
                         setCart(products)
 
                     })
+                    .catch(err => console.log(err))
             })
 
     }
@@ -741,9 +797,14 @@ export default function ThanhToan({ route, navigation }) {
 
                             </View>
                         ))}
-                        <View>
-                            <Text>
-                                Tổng Tiền :
+                        <View style={{
+                            marginTop: 15,
+
+                        }}>
+                            <Text style={{
+                                fontSize: 18
+                            }}>
+                                Tổng Tiền : {total}
                             </Text>
 
                         </View>

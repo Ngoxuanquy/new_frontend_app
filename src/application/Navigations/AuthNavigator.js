@@ -10,6 +10,7 @@ import Order_Done from '../modules/client/order/Order_Done'
 import Debt_Collection_Orders from '../modules/client/order/Debt_Collection_Orders'
 import ChupAnh from '../Components/Chup/Chup'
 import ThanhToan from '../modules/client/order/ThanhToan'
+import ChamCong from '../modules/client/Home/ChamCong'
 
 const Stack = createStackNavigator()
 
@@ -23,7 +24,7 @@ const AuthNavigator = () => {
             <Stack.Screen name={ROUTES.ORDER_DONE} component={Order_Done} />
             <Stack.Screen name={ROUTES.DEBT_Collection_Orders} component={Debt_Collection_Orders} />
             <Stack.Screen name={ROUTES.ChupAnh} component={ChupAnh} />
-            {/* <Stack.Screen name={ROUTES.ThanhToan} component={ThanhToan} /> */}
+            <Stack.Screen name={ROUTES.ChamCong} component={ChamCong} />
 
 
 

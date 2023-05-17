@@ -123,7 +123,7 @@ const DrawerNavigator = ({ navigation }) => {
             method: 'POST',
             headers: {
                 "Content-Type": "application/json",
-                "x-api-key": "a9ae60c5abf0771d5cfc763a143bd796723733b7d2fa537e940dbad50edfcf1bf0f8d25096264293e2d9deb9df2515a241bedda3045777be6ebc38c35c3ac141",
+                "x-api-key": "39081e3d21dc8f2c3fddaff1ae20142b0ae3a0c1849da2a3bd753ddf8db599d983b28c681972c5ecc8990f164527f5d4a0a1820240de22e80b0f61dfbdedde7d",
                 "authorization": jwtString,
                 "x-client-id": id
             }
@@ -290,7 +290,7 @@ const DrawerNavigator = ({ navigation }) => {
                             android
                         </Text>
                     </TouchableOpacity>
-                    <TouchableOpacity onPress={() => navigation.navigate('QRCode')}>
+                    <TouchableOpacity onPress={() => navigation.navigate('ChamCong')}>
                         <Text
                             style={{
                                 color: 'white',

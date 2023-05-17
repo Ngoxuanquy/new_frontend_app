@@ -11,7 +11,7 @@ import { AntDesign } from '@expo/vector-icons';
 const Order_Done = ({ navigation }) => {
     const [selectedIndex, setSelectedIndex] = useState(0);
 
-    const URL = 'http://192.168.0.102:3000/v1/api';
+    const URL = 'http://192.168.1.101:3000/v1/api';
 
     const buttons = ['Đơn chờ thực hiện', 'Đơn đang thực hiện', 'Đơn đã hoàn thành', 'Đơn thu nợ'];
 
@@ -58,7 +58,7 @@ const Order_Done = ({ navigation }) => {
                     method: 'POST',
                     headers: {
                         "Content-Type": "application/json",
-                        "x-api-key": "a9ae60c5abf0771d5cfc763a143bd796723733b7d2fa537e940dbad50edfcf1bf0f8d25096264293e2d9deb9df2515a241bedda3045777be6ebc38c35c3ac141",
+                        "x-api-key": "39081e3d21dc8f2c3fddaff1ae20142b0ae3a0c1849da2a3bd753ddf8db599d983b28c681972c5ecc8990f164527f5d4a0a1820240de22e80b0f61dfbdedde7d",
                         "authorization": cleanedJwtString,
                         "x-client-id": id
                     }
@@ -84,7 +84,6 @@ const Order_Done = ({ navigation }) => {
         }, [])
     );
 
-    console.log(orders)
 
     const [orderbyid, setOrderById] = useState([])
     const [contacts, setContacts] = useState([])
@@ -93,10 +92,49 @@ const Order_Done = ({ navigation }) => {
 
     const [isModalVisible, setModalVisible] = useState(false);
 
+    //lấy api của sản phẩm đã chọn
+    const [carts, setCart] = useState([])
+    const product_done = async (id1) => {
+
+        const accessToken = await getToken()
+        const id = await getID()
+
+
+        const cleanedJwtString = accessToken.replace(/^"|"$/g, '');
+
+        const requestOptions1 = {
+            method: 'POST',
+            headers: {
+                "Content-Type": "application/json",
+                "x-api-key": "39081e3d21dc8f2c3fddaff1ae20142b0ae3a0c1849da2a3bd753ddf8db599d983b28c681972c5ecc8990f164527f5d4a0a1820240de22e80b0f61dfbdedde7d",
+                "authorization": cleanedJwtString,
+                "x-client-id": id
+            }
+        };
+
+        // Lấy dữ liệu của khách hàng
+        fetch(URL + '/transactions_sell_line/get/' + id1, requestOptions1)
+            .then((data) => {
+                return data.json()
+            })
+            .then(data => {
+
+                const products = data.metadata && data.metadata.map(item => {
+                    const product = item.product;
+                    product.quantity = item.quantity;
+                    return product;
+                });
+
+                setCart(products)
+
+            })
+
+    }
+
 
     const GetApiordersByid = async (id1) => {
 
-
+        product_done(id1)
         const accessToken = await getToken()
         const id = await getID()
 
@@ -107,7 +145,7 @@ const Order_Done = ({ navigation }) => {
             method: 'POST',
             headers: {
                 "Content-Type": "application/json",
-                "x-api-key": "a9ae60c5abf0771d5cfc763a143bd796723733b7d2fa537e940dbad50edfcf1bf0f8d25096264293e2d9deb9df2515a241bedda3045777be6ebc38c35c3ac141",
+                "x-api-key": "39081e3d21dc8f2c3fddaff1ae20142b0ae3a0c1849da2a3bd753ddf8db599d983b28c681972c5ecc8990f164527f5d4a0a1820240de22e80b0f61dfbdedde7d",
                 "authorization": cleanedJwtString,
                 "x-client-id": id
             }
@@ -127,10 +165,7 @@ const Order_Done = ({ navigation }) => {
                     setOrderAction(data.metadata)
                     console.log(data.metadata)
 
-                    const metadata = data.metadata; // response là đối tượng chứa dữ liệu trả về từ API
-                    const contact = metadata[0].contacts;
-
-                    setContacts(data.metadata[0].contacts);
+                    setContacts([data.metadata[0].contacts]);
                     // setIsLoading(false);
                 }
             })
@@ -138,12 +173,13 @@ const Order_Done = ({ navigation }) => {
 
 
     const toggleModal = (id1) => {
+        setModalVisible(!isModalVisible);
         GetApiordersByid(id1)
 
-        setModalVisible(!isModalVisible);
     };
 
-    console.log(contacts)
+
+
 
 
     return (
@@ -714,12 +750,104 @@ const Order_Done = ({ navigation }) => {
                                             </Text>
                                         </View>
 
+
+                                        <View>
+                                            <Text style={{
+                                                fontSize: 18,
+                                                padding: 10,
+                                                fontWeight: 500
+                                            }}>
+                                                Sản Phẩm Đã Chọn
+                                            </Text>
+                                            <View style={{
+                                                flexDirection: 'row',
+                                                justifyContent: 'space-around',
+                                                marginBottom: 10,
+                                                marginTop: 10
+                                            }}>
+                                                <Text>
+                                                    Tên Sp
+                                                </Text>
+
+                                                <Text>
+                                                    Số Lượng
+                                                </Text>
+                                                <Text>
+                                                    Giá
+                                                </Text>
+                                                <Text>
+                                                    Thành Tiền
+                                                </Text>
+
+                                            </View>
+
+                                            {carts && carts.map(ca => (
+                                                <View key={ca.id}>
+                                                    <View style={{
+                                                        flexDirection: 'row',
+                                                        justifyContent: 'space-around',
+                                                        marginTop: 20,
+                                                        borderBottomWidth: 1,
+                                                        borderBottomColor: 'gray',
+
+                                                    }}>
+                                                        <Text>
+                                                            {ca.name}
+                                                        </Text>
+
+                                                        <View style={{
+                                                            flexDirection: 'row',
+                                                            justifyContent: 'space-around',
+                                                            width: 100,
+
+                                                        }}>
+
+                                                            <View style={{
+                                                                justifyContent: "center",
+                                                                alignItems: 'center'
+                                                            }}>
+                                                                <Text style={{
+                                                                    textAlign: 'center'
+                                                                }}>
+                                                                    {ca.quantity}
+                                                                </Text>
+                                                            </View>
+
+                                                        </View>
+                                                        <View style={{
+                                                            justifyContent: "center",
+                                                            alignItems: 'center'
+                                                        }}>
+                                                            <Text style={{
+                                                                textAlign: 'center'
+                                                            }}>
+                                                                {ca.price}
+                                                            </Text>
+                                                        </View>
+
+                                                        <View style={{
+                                                            justifyContent: "center",
+                                                            alignItems: 'center'
+                                                        }}>
+                                                            <Text style={{
+                                                                textAlign: 'center'
+                                                            }}>
+                                                                {ca.price * ca.quantity}
+                                                            </Text>
+                                                        </View>
+                                                    </View>
+                                                </View>
+                                            ))}
+                                        </View>
+
                                         {/* checkbox */}
 
                                         <View>
                                             <View style={{
                                                 // flexDirection: 'row',
-                                                // flexWrap: 'wrap'
+                                                // flexWrap: 'wrap'\
+                                                marginTop: 20,
+                                                marginBottom: 40
                                             }}>
 
 
@@ -731,15 +859,17 @@ const Order_Done = ({ navigation }) => {
                                                         backgroundColor: '#3c8dbc',
                                                         justifyContent: 'center',
                                                         alignItems: 'center',
-                                                        width: 60,
+                                                        width: 80,
                                                         borderRadius: 8
-                                                    }}>
+                                                    }}
+                                                        onPress={() => toggleModal()}
+                                                    >
                                                         <Text style={{
                                                             fontSize: 20,
                                                             color: 'white',
                                                             padding: 10
                                                         }}>
-                                                            Lưu
+                                                            Đóng
                                                         </Text>
                                                     </TouchableOpacity>
                                                 </View>

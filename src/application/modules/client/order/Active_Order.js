@@ -22,7 +22,7 @@ const Active_Order = ({ navigation }) => {
 
 
 
-    const URL = 'http://192.168.0.102:3000/v1/api';
+    const URL = 'http://192.168.1.101:3000/v1/api';
     const [selectedIndex, setSelectedIndex] = useState(0);
 
     // khai báo button đơn hàng
@@ -55,19 +55,15 @@ const Active_Order = ({ navigation }) => {
     //laays duwx lieeuj tuwf order bằng id
     const GetApiorders = async (id1) => {
 
-        console.log(id1)
-
         const accessToken = await getToken()
         const id = await getID()
-
-
         const cleanedJwtString = accessToken.replace(/^"|"$/g, '');
 
         const requestOptions = {
             method: 'POST',
             headers: {
                 "Content-Type": "application/json",
-                "x-api-key": "a9ae60c5abf0771d5cfc763a143bd796723733b7d2fa537e940dbad50edfcf1bf0f8d25096264293e2d9deb9df2515a241bedda3045777be6ebc38c35c3ac141",
+                "x-api-key": "39081e3d21dc8f2c3fddaff1ae20142b0ae3a0c1849da2a3bd753ddf8db599d983b28c681972c5ecc8990f164527f5d4a0a1820240de22e80b0f61dfbdedde7d",
                 "authorization": cleanedJwtString,
                 "x-client-id": id
             }
@@ -80,6 +76,7 @@ const Active_Order = ({ navigation }) => {
                 return data.json()
             })
             .then(data => {
+
                 // console.log(data.message)
                 if (data.metadata && Array.isArray(data.metadata)) {
 
@@ -94,11 +91,58 @@ const Active_Order = ({ navigation }) => {
 
     // console.log(contacts)
 
+    const [a, setA] = useState()
+
+    //Xử lý tạo mới comment
+    const handerCommnet = async (id1) => {
+
+        const orderId = id1;
+
+        setA(orderId)
+
+        const accessToken = await getToken()
+        const id = await getID()
+
+
+        const cleanedJwtString = accessToken.replace(/^"|"$/g, '');
+
+        const requestOptions = {
+            method: 'POST',
+            headers: {
+                "Content-Type": "application/json",
+                "x-api-key": "39081e3d21dc8f2c3fddaff1ae20142b0ae3a0c1849da2a3bd753ddf8db599d983b28c681972c5ecc8990f164527f5d4a0a1820240de22e80b0f61dfbdedde7d",
+                "authorization": cleanedJwtString,
+                "x-client-id": id
+            },
+            body: JSON.stringify({
+                user_id: id,
+                orderId: a,
+                conten: 'abc'
+            })
+        };
+
+
+        // Lấy dữ liệu của khách hàng
+        fetch(URL + '/ordercomment/create', requestOptions)
+            .then((data) => {
+                return data.json()
+            })
+            .then(data => {
+                // console.log(data.message)
+                if (data.metadata && Array.isArray(data.metadata)) {
+                    console.log(data.metadata)
+                }
+            })
+    }
+
     //bật tắt modal xem
     const toggleModal = (id1) => {
-        GetApiorders(id1)
 
         setModalVisible(!isModalVisible);
+        // handerCommnet(id1)
+        GetApiorders(id1)
+        apiImages(id1)
+
     };
 
     //bật tắt modal upanhr
@@ -185,8 +229,6 @@ const Active_Order = ({ navigation }) => {
     //lấy thông tin khách hàng
     const [contacts, setContacts] = useState([])
     const [isLoading, setIsLoading] = useState(true)
-
-
     const [orderAcction, setOrderAction] = useState([])
 
     useFocusEffect(
@@ -201,7 +243,7 @@ const Active_Order = ({ navigation }) => {
                     method: 'POST',
                     headers: {
                         "Content-Type": "application/json",
-                        "x-api-key": "a9ae60c5abf0771d5cfc763a143bd796723733b7d2fa537e940dbad50edfcf1bf0f8d25096264293e2d9deb9df2515a241bedda3045777be6ebc38c35c3ac141",
+                        "x-api-key": "39081e3d21dc8f2c3fddaff1ae20142b0ae3a0c1849da2a3bd753ddf8db599d983b28c681972c5ecc8990f164527f5d4a0a1820240de22e80b0f61dfbdedde7d",
                         "authorization": cleanedJwtString,
                         "x-client-id": id
                     }
@@ -214,11 +256,11 @@ const Active_Order = ({ navigation }) => {
                     })
                     .then(data => {
                         if (data.metadata && Array.isArray(data.metadata)) {
-                            setOrderAction(data)
-                            const metadata = data.metadata; // response là đối tượng chứa dữ liệu trả về từ API
-                            const contacts = metadata.map((item) => item.contacts);
+                            // setOrderAction(data)
+                            // const metadata = data.metadata; // response là đối tượng chứa dữ liệu trả về từ API
+                            // const contacts = metadata.map((item) => item.contacts);
                             // console.log(contacts);
-                            setContacts(data.metadata);
+                            setOrderAction(data.metadata);
                             // setContacts(data.metadata[0].contacts);
 
                             setIsLoading(false);
@@ -244,13 +286,13 @@ const Active_Order = ({ navigation }) => {
             method: 'POST',
             headers: {
                 "Content-Type": "application/json",
-                "x-api-key": "a9ae60c5abf0771d5cfc763a143bd796723733b7d2fa537e940dbad50edfcf1bf0f8d25096264293e2d9deb9df2515a241bedda3045777be6ebc38c35c3ac141",
+                "x-api-key": "39081e3d21dc8f2c3fddaff1ae20142b0ae3a0c1849da2a3bd753ddf8db599d983b28c681972c5ecc8990f164527f5d4a0a1820240de22e80b0f61dfbdedde7d",
                 "authorization": cleanedJwtString,
                 "x-client-id": id
             },
             body: JSON.stringify({
                 contact_id: id1,
-                nvkt_id: 1,
+                nvkt_id: id,
                 business_id: 1,
                 created_by: 1,
                 status: 'pending',
@@ -272,7 +314,7 @@ const Active_Order = ({ navigation }) => {
                         method: 'POST',
                         headers: {
                             "Content-Type": "application/json",
-                            "x-api-key": "a9ae60c5abf0771d5cfc763a143bd796723733b7d2fa537e940dbad50edfcf1bf0f8d25096264293e2d9deb9df2515a241bedda3045777be6ebc38c35c3ac141",
+                            "x-api-key": "39081e3d21dc8f2c3fddaff1ae20142b0ae3a0c1849da2a3bd753ddf8db599d983b28c681972c5ecc8990f164527f5d4a0a1820240de22e80b0f61dfbdedde7d",
                             "authorization": cleanedJwtString,
                             "x-client-id": id
                         },
@@ -281,6 +323,7 @@ const Active_Order = ({ navigation }) => {
                             order_id: id1,
                             nvkt_id: id,
                             nvkd_id: 1,
+                            customer_id: id1,
                             type: 'your_type_value_here',
                             status: 'your_status_value_here',
                             ord_status: 'your_ord_status_value_here',
@@ -297,12 +340,51 @@ const Active_Order = ({ navigation }) => {
 
         // Viết mã kiểm tra token đã hết hạn
 
-        console.log(id1)
-
         navigation.navigate('ThanhToan', {
             id_tran: id1
         })
     }
+
+    //lấy api images
+
+    const [images, setImages] = useState([])
+
+    const apiImages = async (orderId) => {
+        const accessToken = await getToken()
+        const id = await getID()
+
+
+        const cleanedJwtString = accessToken.replace(/^"|"$/g, '');
+
+        const requestOptions = {
+            method: 'POST',
+            headers: {
+                "Content-Type": "application/json",
+                "x-api-key": "39081e3d21dc8f2c3fddaff1ae20142b0ae3a0c1849da2a3bd753ddf8db599d983b28c681972c5ecc8990f164527f5d4a0a1820240de22e80b0f61dfbdedde7d",
+                "authorization": cleanedJwtString,
+                "x-client-id": id
+            }
+        };
+
+
+        // Lấy dữ liệu của khách hàng
+        fetch(URL + '/orderimages/get/' + orderId, requestOptions)
+            .then((data) => {
+                return data.json()
+            })
+            .then(data => {
+                // console.log(data.message)
+                if (data.metadata && Array.isArray(data.metadata)) {
+
+                    setImages(data.metadata)
+
+                }
+                // setIsLoading(false)
+
+            })
+    }
+
+    console.log(contacts)
 
 
     return (
@@ -395,7 +477,7 @@ const Active_Order = ({ navigation }) => {
                         }}>
                             Đơn Đang Thực Hiện
                         </Text>
-                        {contacts && contacts.map(contact => (
+                        {orderAcction && orderAcction.map(contact => (
 
                             <View
                                 key={contact.id}
@@ -451,7 +533,7 @@ const Active_Order = ({ navigation }) => {
                                             borderRadius: 7
                                         }}
                                             onPress={() => navigation.navigate('Chup', {
-                                                id: contact.ordersId
+                                                ordersId: contact.id
                                             })}
                                         >
                                             <Text style={{
@@ -562,426 +644,424 @@ const Active_Order = ({ navigation }) => {
                                             }}>
                                                 Thông tin khách hàng
                                             </Text>
-                                            {contacts.map(contact => (
-                                                <View key={contact.id}>
+                                            <View >
 
+                                                <View style={{
+                                                    width: "100%",
+                                                    backgroundColor: 'white',
+                                                    justifyContent: 'center',
+                                                    alignItems: 'center',
+                                                }}>
                                                     <View style={{
-                                                        width: "100%",
-                                                        backgroundColor: 'white',
-                                                        justifyContent: 'center',
-                                                        alignItems: 'center',
+                                                        width: '93%',
+                                                        marginTop: 10,
                                                     }}>
                                                         <View style={{
-                                                            width: '93%',
-                                                            marginTop: 10,
+                                                            borderColor: '#ddd',
+                                                            borderWidth: 1,
+                                                            flexDirection: 'row',
                                                         }}>
-                                                            <View style={{
-                                                                borderColor: '#ddd',
-                                                                borderWidth: 1,
-                                                                flexDirection: 'row',
+                                                            <Text style={{
+                                                                fontSize: 17,
+                                                                fontWeight: 500,
+                                                                paddingVertical: 10,
+                                                                marginLeft: 7
                                                             }}>
-                                                                <Text style={{
-                                                                    fontSize: 17,
-                                                                    fontWeight: 500,
-                                                                    paddingVertical: 10,
-                                                                    marginLeft: 7
-                                                                }}>
-                                                                    Tên Khách Hàng:
-                                                                </Text>
-                                                                <Text style={{
-                                                                    paddingVertical: 10,
-                                                                    fontSize: 15,
-                                                                    marginTop: 2,
-                                                                    marginLeft: 6
-                                                                }}>
-                                                                    {contact.name}
-                                                                </Text>
-                                                            </View>
-
-                                                            <View style={{
-                                                                borderColor: '#ddd',
-                                                                borderWidth: 1,
-                                                                flexDirection: 'row',
+                                                                Tên Khách Hàng:
+                                                            </Text>
+                                                            <Text style={{
+                                                                paddingVertical: 10,
+                                                                fontSize: 15,
+                                                                marginTop: 2,
+                                                                marginLeft: 6
                                                             }}>
-                                                                <Text style={{
-                                                                    fontSize: 17,
-                                                                    fontWeight: 500,
-                                                                    paddingVertical: 10,
-                                                                    marginLeft: 7
-                                                                }}>
-                                                                    Địa Chỉ:
-                                                                </Text>
-                                                                <Text style={{
-                                                                    paddingVertical: 10,
-                                                                    fontSize: 15,
-                                                                    marginLeft: 6,
-                                                                    marginTop: 1,
-                                                                    width: '75%',
-                                                                    opacity: 0.7
-                                                                }}>
-                                                                    {contact.formatted_address}
-                                                                </Text>
-                                                            </View>
+                                                                {contacts.name}
+                                                            </Text>
+                                                        </View>
 
-                                                            <View style={{
-                                                                borderColor: '#ddd',
-                                                                borderWidth: 1,
-                                                                flexDirection: 'row',
-                                                                padding: 4
-
+                                                        <View style={{
+                                                            borderColor: '#ddd',
+                                                            borderWidth: 1,
+                                                            flexDirection: 'row',
+                                                        }}>
+                                                            <Text style={{
+                                                                fontSize: 17,
+                                                                fontWeight: 500,
+                                                                paddingVertical: 10,
+                                                                marginLeft: 7
                                                             }}>
-                                                                <Text style={{
-                                                                    fontSize: 17,
-                                                                    fontWeight: 500,
-                                                                    paddingVertical: 10,
-                                                                    marginLeft: 7
-                                                                }}>
-                                                                    Ví Trí KH:
-                                                                </Text>
-                                                                <TouchableOpacity style={{
-                                                                    width: '40%',
-                                                                    backgroundColor: '#337ab7',
-                                                                    marginLeft: 6
-                                                                }}>
-                                                                    <Text style={{
-                                                                        paddingVertical: 10,
-                                                                        fontSize: 17,
-                                                                        marginLeft: 6,
-                                                                        color: 'white',
-                                                                        fontWeight: 500
-                                                                    }}>
-                                                                        Google Map
-                                                                    </Text>
-                                                                </TouchableOpacity>
-
-                                                            </View>
-
-
-                                                            <View style={{
-                                                                borderColor: '#ddd',
-                                                                borderWidth: 1,
-                                                                flexDirection: 'row',
+                                                                Địa Chỉ:
+                                                            </Text>
+                                                            <Text style={{
+                                                                paddingVertical: 10,
+                                                                fontSize: 15,
+                                                                marginLeft: 6,
+                                                                marginTop: 1,
+                                                                width: '75%',
+                                                                opacity: 0.7
                                                             }}>
-                                                                <Text style={{
-                                                                    fontSize: 17,
-                                                                    fontWeight: 500,
-                                                                    paddingVertical: 10,
-                                                                    marginLeft: 7
-                                                                }}>
-                                                                    Loại Máy:
-                                                                </Text>
-                                                                <Text style={{
-                                                                    paddingVertical: 10,
-                                                                    fontSize: 15,
-                                                                    marginTop: 1,
-                                                                    opacity: 0.7,
-                                                                    marginLeft: 6
-                                                                }}>
-                                                                    Máy Kangaroo
-                                                                </Text>
-                                                            </View>
+                                                                {contacts.formatted_address}
+                                                            </Text>
+                                                        </View>
 
-                                                            <View style={{
-                                                                borderColor: '#ddd',
-                                                                borderWidth: 1,
-                                                                flexDirection: 'row',
+                                                        <View style={{
+                                                            borderColor: '#ddd',
+                                                            borderWidth: 1,
+                                                            flexDirection: 'row',
+                                                            padding: 4
+
+                                                        }}>
+                                                            <Text style={{
+                                                                fontSize: 17,
+                                                                fontWeight: 500,
+                                                                paddingVertical: 10,
+                                                                marginLeft: 7
                                                             }}>
-                                                                <Text style={{
-                                                                    fontSize: 17,
-                                                                    fontWeight: 500,
-                                                                    paddingVertical: 10,
-                                                                    marginLeft: 7
-                                                                }}>
-                                                                    Giờ hẹn tới nhà khách:
-                                                                </Text>
-                                                                <Text style={{
-                                                                    paddingVertical: 10,
-                                                                    fontSize: 15,
-                                                                    marginLeft: 6,
-                                                                    width: '75%',
-                                                                    margin: 2
-                                                                }}>
-                                                                    10:00:00
-                                                                </Text>
-                                                            </View>
-
-                                                            <View style={{
-                                                                borderColor: '#ddd',
-                                                                borderWidth: 1,
-                                                                flexDirection: 'row',
+                                                                Ví Trí KH:
+                                                            </Text>
+                                                            <TouchableOpacity style={{
+                                                                width: '40%',
+                                                                backgroundColor: '#337ab7',
+                                                                marginLeft: 6
                                                             }}>
-                                                                <Text style={{
-                                                                    fontSize: 17,
-                                                                    fontWeight: 500,
-                                                                    paddingVertical: 10,
-                                                                    marginLeft: 7
-                                                                }}>
-                                                                    Gió dịch vụ:
-                                                                </Text>
-                                                                <Text style={{
-                                                                    paddingVertical: 10,
-                                                                    fontSize: 15,
-                                                                    marginLeft: 6,
-                                                                    marginTop: 1,
-                                                                    width: '60%'
-                                                                }}>
-                                                                    -Thay lõi, vệ sinh, bảo dưỡng, Kangaroo
-                                                                </Text>
-                                                            </View>
-
-                                                            <View style={{
-                                                                borderColor: '#ddd',
-                                                                borderWidth: 1,
-                                                                flexDirection: 'row',
-                                                            }}>
-                                                                <Text style={{
-                                                                    fontSize: 17,
-                                                                    fontWeight: 500,
-                                                                    paddingVertical: 10,
-                                                                    marginLeft: 7
-                                                                }}>
-                                                                    Đồ cần mang:
-                                                                </Text>
-                                                                <Text style={{
-                                                                    paddingVertical: 10,
-                                                                    fontSize: 17,
-                                                                    marginLeft: 6
-                                                                }}>
-                                                                    Không /
-                                                                </Text>
-                                                            </View>
-
-                                                            <View style={{
-                                                                borderColor: '#ddd',
-                                                                borderWidth: 1,
-                                                                // flexDirection: 'row',
-                                                            }}>
-                                                                <Text style={{
-                                                                    fontSize: 17,
-                                                                    fontWeight: 500,
-                                                                    paddingVertical: 10,
-                                                                    marginLeft: 7
-                                                                }}>
-                                                                    Hỗ Trợ Đơn Hàng:
-                                                                </Text>
-                                                                <View style={{
-                                                                    justifyContent: 'center',
-                                                                    alignItems: 'center'
-                                                                }}>
-                                                                    <SelectDropdown
-
-                                                                        data={countries}
-                                                                        onSelect={(selectedItem, index) => {
-                                                                            console.log(selectedItem, index)
-                                                                        }}
-                                                                        defaultButtonText="--Chọn--"
-                                                                        buttonText={selectedOption ? selectedOption : '--Chọn--'}
-                                                                        buttonTextAfterSelection={(selectedItem, index) => {
-                                                                            // text represented after item is selected
-                                                                            // if data array is an array of objects then return selectedItem.property to render after item is selected
-                                                                            return selectedItem
-                                                                        }}
-                                                                        rowTextForSelection={(item, index) => {
-                                                                            // text represented for each item in dropdown
-                                                                            // if data array is an array of objects then return item.property to represent item in dropdown
-                                                                            return item
-                                                                        }}
-                                                                        buttonStyle={{
-                                                                            width: '90%',
-                                                                            backgroundColor: 'white',
-                                                                            borderColor: 'black',
-                                                                            borderWidth: 0.5,
-                                                                            height: 37,
-                                                                            marginTop: 1,
-
-                                                                        }}
-
-                                                                        buttonTextStyle={{
-
-                                                                        }}
-
-                                                                    />
-                                                                </View>
-                                                                <TouchableOpacity style={{
-                                                                    width: '50%',
-                                                                    backgroundColor: '#337ab7',
-                                                                    marginTop: 5,
-                                                                    marginBottom: 5,
-                                                                    marginLeft: 15,
-                                                                    borderRadius: 7
-                                                                }}>
-                                                                    <Text style={{
-                                                                        paddingVertical: 10,
-                                                                        fontSize: 17,
-                                                                        marginLeft: 6,
-                                                                        color: 'white'
-                                                                    }}>
-                                                                        Yêu cầu hỗ trợ
-                                                                    </Text>
-                                                                </TouchableOpacity>
-                                                            </View>
-
-                                                            <View style={{
-                                                                borderColor: '#ddd',
-                                                                borderWidth: 1,
-                                                                flexDirection: 'row',
-                                                            }}>
-                                                                <Text style={{
-                                                                    fontSize: 17,
-                                                                    fontWeight: 500,
-                                                                    paddingVertical: 10,
-                                                                    marginLeft: 7
-                                                                }}>
-                                                                    Nhân Viên KT:
-                                                                </Text>
                                                                 <Text style={{
                                                                     paddingVertical: 10,
                                                                     fontSize: 17,
                                                                     marginLeft: 6,
-                                                                    opacity: 0.7
+                                                                    color: 'white',
+                                                                    fontWeight: 500
                                                                 }}>
-                                                                    NVKT1812
+                                                                    Google Map
                                                                 </Text>
-                                                            </View>
-
-                                                            <View style={{
-                                                                borderColor: '#ddd',
-                                                                borderWidth: 1,
-                                                                flexDirection: 'row',
-                                                                // marginTop: 30
-                                                            }}>
-                                                                <Text style={{
-                                                                    fontSize: 17,
-                                                                    fontWeight: 500,
-                                                                    paddingVertical: 10,
-                                                                    marginLeft: 7
-                                                                }}>
-                                                                    Số km di chuyển:
-                                                                </Text>
-                                                                <Text style={{
-                                                                    paddingVertical: 10,
-                                                                    fontSize: 17,
-                                                                    marginLeft: 6
-                                                                }}>
-                                                                    0
-                                                                </Text>
-                                                            </View>
-
-                                                            <View style={{
-                                                                borderColor: '#ddd',
-                                                                borderWidth: 1,
-                                                                flexDirection: 'row',
-                                                            }}>
-                                                                <Text style={{
-                                                                    fontSize: 17,
-                                                                    fontWeight: 500,
-                                                                    paddingVertical: 10,
-                                                                    marginLeft: 7
-                                                                }}>
-                                                                    Cuốc về:
-                                                                </Text>
-                                                                <Text style={{
-                                                                    paddingVertical: 10,
-                                                                    fontSize: 17,
-                                                                    marginLeft: 6
-                                                                }}>
-                                                                    0
-                                                                </Text>
-                                                            </View>
-
-                                                            <View style={{
-                                                                borderColor: '#ddd',
-                                                                borderWidth: 1,
-                                                                flexDirection: 'row',
-                                                            }}>
-                                                                <Text style={{
-                                                                    fontSize: 17,
-                                                                    fontWeight: 500,
-                                                                    paddingVertical: 10,
-                                                                    marginLeft: 7
-                                                                }}>
-                                                                    Thời gian di chuyển:
-                                                                </Text>
-                                                                <Text style={{
-                                                                    paddingVertical: 10,
-                                                                    fontSize: 17,
-                                                                    marginLeft: 6
-                                                                }}>
-                                                                    0
-                                                                </Text>
-                                                            </View>
-
-                                                            <View style={{
-                                                                borderColor: '#ddd',
-                                                                borderWidth: 1,
-                                                                flexDirection: 'row',
-                                                            }}>
-                                                                <Text style={{
-                                                                    fontSize: 17,
-                                                                    fontWeight: 500,
-                                                                    paddingVertical: 10,
-                                                                    marginLeft: 7
-                                                                }}>
-                                                                    Bắt đầu:
-                                                                </Text>
-                                                                <Text style={{
-                                                                    paddingVertical: 10,
-                                                                    fontSize: 17,
-                                                                    marginLeft: 6
-                                                                }}>
-                                                                    10:00:00
-                                                                </Text>
-                                                            </View>
-
-                                                            <View style={{
-                                                                borderColor: '#ddd',
-                                                                borderWidth: 1,
-                                                                flexDirection: 'row',
-                                                            }}>
-                                                                <Text style={{
-                                                                    fontSize: 17,
-                                                                    fontWeight: 500,
-                                                                    paddingVertical: 10,
-                                                                    marginLeft: 7
-                                                                }}>
-                                                                    Kết Thúc:
-                                                                </Text>
-                                                                <Text style={{
-                                                                    paddingVertical: 10,
-                                                                    fontSize: 17,
-                                                                    marginLeft: 6
-                                                                }}>
-                                                                    10:00:00
-                                                                </Text>
-                                                            </View>
-
-                                                            <View style={{
-                                                                borderColor: '#ddd',
-                                                                borderWidth: 1,
-                                                                flexDirection: 'row',
-                                                                marginBottom: 30
-                                                            }}>
-                                                                <Text style={{
-                                                                    fontSize: 17,
-                                                                    fontWeight: 500,
-                                                                    paddingVertical: 10,
-                                                                    marginLeft: 7
-                                                                }}>
-                                                                    Mô Tả:
-                                                                </Text>
-                                                                <Text style={{
-                                                                    paddingVertical: 10,
-                                                                    fontSize: 17,
-                                                                    marginLeft: 6
-                                                                }}>
-                                                                    Không /
-                                                                </Text>
-                                                            </View>
+                                                            </TouchableOpacity>
 
                                                         </View>
+
+
+                                                        <View style={{
+                                                            borderColor: '#ddd',
+                                                            borderWidth: 1,
+                                                            flexDirection: 'row',
+                                                        }}>
+                                                            <Text style={{
+                                                                fontSize: 17,
+                                                                fontWeight: 500,
+                                                                paddingVertical: 10,
+                                                                marginLeft: 7
+                                                            }}>
+                                                                Loại Máy:
+                                                            </Text>
+                                                            <Text style={{
+                                                                paddingVertical: 10,
+                                                                fontSize: 15,
+                                                                marginTop: 1,
+                                                                opacity: 0.7,
+                                                                marginLeft: 6
+                                                            }}>
+                                                                Máy Kangaroo
+                                                            </Text>
+                                                        </View>
+
+                                                        <View style={{
+                                                            borderColor: '#ddd',
+                                                            borderWidth: 1,
+                                                            flexDirection: 'row',
+                                                        }}>
+                                                            <Text style={{
+                                                                fontSize: 17,
+                                                                fontWeight: 500,
+                                                                paddingVertical: 10,
+                                                                marginLeft: 7
+                                                            }}>
+                                                                Giờ hẹn tới nhà khách:
+                                                            </Text>
+                                                            <Text style={{
+                                                                paddingVertical: 10,
+                                                                fontSize: 15,
+                                                                marginLeft: 6,
+                                                                width: '75%',
+                                                                margin: 2
+                                                            }}>
+                                                                10:00:00
+                                                            </Text>
+                                                        </View>
+
+                                                        <View style={{
+                                                            borderColor: '#ddd',
+                                                            borderWidth: 1,
+                                                            flexDirection: 'row',
+                                                        }}>
+                                                            <Text style={{
+                                                                fontSize: 17,
+                                                                fontWeight: 500,
+                                                                paddingVertical: 10,
+                                                                marginLeft: 7
+                                                            }}>
+                                                                Gió dịch vụ:
+                                                            </Text>
+                                                            <Text style={{
+                                                                paddingVertical: 10,
+                                                                fontSize: 15,
+                                                                marginLeft: 6,
+                                                                marginTop: 1,
+                                                                width: '60%'
+                                                            }}>
+                                                                -Thay lõi, vệ sinh, bảo dưỡng, Kangaroo
+                                                            </Text>
+                                                        </View>
+
+                                                        <View style={{
+                                                            borderColor: '#ddd',
+                                                            borderWidth: 1,
+                                                            flexDirection: 'row',
+                                                        }}>
+                                                            <Text style={{
+                                                                fontSize: 17,
+                                                                fontWeight: 500,
+                                                                paddingVertical: 10,
+                                                                marginLeft: 7
+                                                            }}>
+                                                                Đồ cần mang:
+                                                            </Text>
+                                                            <Text style={{
+                                                                paddingVertical: 10,
+                                                                fontSize: 17,
+                                                                marginLeft: 6
+                                                            }}>
+                                                                Không /
+                                                            </Text>
+                                                        </View>
+
+                                                        <View style={{
+                                                            borderColor: '#ddd',
+                                                            borderWidth: 1,
+                                                            // flexDirection: 'row',
+                                                        }}>
+                                                            <Text style={{
+                                                                fontSize: 17,
+                                                                fontWeight: 500,
+                                                                paddingVertical: 10,
+                                                                marginLeft: 7
+                                                            }}>
+                                                                Hỗ Trợ Đơn Hàng:
+                                                            </Text>
+                                                            <View style={{
+                                                                justifyContent: 'center',
+                                                                alignItems: 'center'
+                                                            }}>
+                                                                <SelectDropdown
+
+                                                                    data={countries}
+                                                                    onSelect={(selectedItem, index) => {
+                                                                        console.log(selectedItem, index)
+                                                                    }}
+                                                                    defaultButtonText="--Chọn--"
+                                                                    buttonText={selectedOption ? selectedOption : '--Chọn--'}
+                                                                    buttonTextAfterSelection={(selectedItem, index) => {
+                                                                        // text represented after item is selected
+                                                                        // if data array is an array of objects then return selectedItem.property to render after item is selected
+                                                                        return selectedItem
+                                                                    }}
+                                                                    rowTextForSelection={(item, index) => {
+                                                                        // text represented for each item in dropdown
+                                                                        // if data array is an array of objects then return item.property to represent item in dropdown
+                                                                        return item
+                                                                    }}
+                                                                    buttonStyle={{
+                                                                        width: '90%',
+                                                                        backgroundColor: 'white',
+                                                                        borderColor: 'black',
+                                                                        borderWidth: 0.5,
+                                                                        height: 37,
+                                                                        marginTop: 1,
+
+                                                                    }}
+
+                                                                    buttonTextStyle={{
+
+                                                                    }}
+
+                                                                />
+                                                            </View>
+                                                            <TouchableOpacity style={{
+                                                                width: '50%',
+                                                                backgroundColor: '#337ab7',
+                                                                marginTop: 5,
+                                                                marginBottom: 5,
+                                                                marginLeft: 15,
+                                                                borderRadius: 7
+                                                            }}>
+                                                                <Text style={{
+                                                                    paddingVertical: 10,
+                                                                    fontSize: 17,
+                                                                    marginLeft: 6,
+                                                                    color: 'white'
+                                                                }}>
+                                                                    Yêu cầu hỗ trợ
+                                                                </Text>
+                                                            </TouchableOpacity>
+                                                        </View>
+
+                                                        <View style={{
+                                                            borderColor: '#ddd',
+                                                            borderWidth: 1,
+                                                            flexDirection: 'row',
+                                                        }}>
+                                                            <Text style={{
+                                                                fontSize: 17,
+                                                                fontWeight: 500,
+                                                                paddingVertical: 10,
+                                                                marginLeft: 7
+                                                            }}>
+                                                                Nhân Viên KT:
+                                                            </Text>
+                                                            <Text style={{
+                                                                paddingVertical: 10,
+                                                                fontSize: 17,
+                                                                marginLeft: 6,
+                                                                opacity: 0.7
+                                                            }}>
+                                                                NVKT1812
+                                                            </Text>
+                                                        </View>
+
+                                                        <View style={{
+                                                            borderColor: '#ddd',
+                                                            borderWidth: 1,
+                                                            flexDirection: 'row',
+                                                            // marginTop: 30
+                                                        }}>
+                                                            <Text style={{
+                                                                fontSize: 17,
+                                                                fontWeight: 500,
+                                                                paddingVertical: 10,
+                                                                marginLeft: 7
+                                                            }}>
+                                                                Số km di chuyển:
+                                                            </Text>
+                                                            <Text style={{
+                                                                paddingVertical: 10,
+                                                                fontSize: 17,
+                                                                marginLeft: 6
+                                                            }}>
+                                                                0
+                                                            </Text>
+                                                        </View>
+
+                                                        <View style={{
+                                                            borderColor: '#ddd',
+                                                            borderWidth: 1,
+                                                            flexDirection: 'row',
+                                                        }}>
+                                                            <Text style={{
+                                                                fontSize: 17,
+                                                                fontWeight: 500,
+                                                                paddingVertical: 10,
+                                                                marginLeft: 7
+                                                            }}>
+                                                                Cuốc về:
+                                                            </Text>
+                                                            <Text style={{
+                                                                paddingVertical: 10,
+                                                                fontSize: 17,
+                                                                marginLeft: 6
+                                                            }}>
+                                                                0
+                                                            </Text>
+                                                        </View>
+
+                                                        <View style={{
+                                                            borderColor: '#ddd',
+                                                            borderWidth: 1,
+                                                            flexDirection: 'row',
+                                                        }}>
+                                                            <Text style={{
+                                                                fontSize: 17,
+                                                                fontWeight: 500,
+                                                                paddingVertical: 10,
+                                                                marginLeft: 7
+                                                            }}>
+                                                                Thời gian di chuyển:
+                                                            </Text>
+                                                            <Text style={{
+                                                                paddingVertical: 10,
+                                                                fontSize: 17,
+                                                                marginLeft: 6
+                                                            }}>
+                                                                0
+                                                            </Text>
+                                                        </View>
+
+                                                        <View style={{
+                                                            borderColor: '#ddd',
+                                                            borderWidth: 1,
+                                                            flexDirection: 'row',
+                                                        }}>
+                                                            <Text style={{
+                                                                fontSize: 17,
+                                                                fontWeight: 500,
+                                                                paddingVertical: 10,
+                                                                marginLeft: 7
+                                                            }}>
+                                                                Bắt đầu:
+                                                            </Text>
+                                                            <Text style={{
+                                                                paddingVertical: 10,
+                                                                fontSize: 17,
+                                                                marginLeft: 6
+                                                            }}>
+                                                                10:00:00
+                                                            </Text>
+                                                        </View>
+
+                                                        <View style={{
+                                                            borderColor: '#ddd',
+                                                            borderWidth: 1,
+                                                            flexDirection: 'row',
+                                                        }}>
+                                                            <Text style={{
+                                                                fontSize: 17,
+                                                                fontWeight: 500,
+                                                                paddingVertical: 10,
+                                                                marginLeft: 7
+                                                            }}>
+                                                                Kết Thúc:
+                                                            </Text>
+                                                            <Text style={{
+                                                                paddingVertical: 10,
+                                                                fontSize: 17,
+                                                                marginLeft: 6
+                                                            }}>
+                                                                10:00:00
+                                                            </Text>
+                                                        </View>
+
+                                                        <View style={{
+                                                            borderColor: '#ddd',
+                                                            borderWidth: 1,
+                                                            flexDirection: 'row',
+                                                            marginBottom: 30
+                                                        }}>
+                                                            <Text style={{
+                                                                fontSize: 17,
+                                                                fontWeight: 500,
+                                                                paddingVertical: 10,
+                                                                marginLeft: 7
+                                                            }}>
+                                                                Mô Tả:
+                                                            </Text>
+                                                            <Text style={{
+                                                                paddingVertical: 10,
+                                                                fontSize: 17,
+                                                                marginLeft: 6
+                                                            }}>
+                                                                Không /
+                                                            </Text>
+                                                        </View>
+
                                                     </View>
                                                 </View>
-                                            ))}
+                                            </View>
                                         </View>
 
                                     </View>
@@ -1081,82 +1161,53 @@ const Active_Order = ({ navigation }) => {
                                             backgroundColor: 'white',
 
                                         }}>
+                                            {images.map(image => (
 
-                                            <View style={{
-                                                marginBottom: 30,
-                                                flexDirection: 'row',
-                                                justifyContent: 'space-around',
-                                                marginTop: 20
+                                                <View
+                                                    key={image.id}
+                                                    style={{
+                                                        marginBottom: 30,
+                                                        flexDirection: 'row',
+                                                        justifyContent: 'space-around',
+                                                        marginTop: 20
 
-                                            }}>
-                                                <Image style={{
-                                                    width: 150,
-                                                    height: 100,
-                                                    marginLeft: 10
-                                                }}
-                                                    source={{
-                                                        uri: 'https://cdn.baogiaothong.vn/upload/2-2022/images/2022-05-25/2-1653445668-926-width740height481.jpg'
-                                                    }}
-                                                />
-                                                <TouchableOpacity style={{
-                                                    marginTop: 30,
-                                                    backgroundColor: 'red',
-                                                    height: 40,
-                                                    justifyContent: 'center',
-                                                    alignItems: 'center',
-                                                    borderRadius: 10,
-                                                    flexDirection: 'row'
-                                                }}>
-                                                    <AntDesign name="delete" size={20} color="white" style={{
-                                                        marginLeft: 3
-                                                    }} />
-                                                    <Text style={{
-                                                        color: 'white',
-                                                        paddingVertical: 10,
-                                                        marginLeft: 2,
-                                                        marginRight: 2
                                                     }}>
-                                                        Xóa
-                                                    </Text>
-                                                </TouchableOpacity>
-                                            </View>
-
-
-                                            <View style={{
-                                                marginBottom: 30,
-                                                flexDirection: 'row',
-                                                justifyContent: 'space-around',
-                                            }}>
-                                                <Image style={{
-                                                    width: 150,
-                                                    height: 100,
-                                                    marginLeft: 10
-                                                }}
-                                                    source={{
-                                                        uri: 'https://cdn.baogiaothong.vn/upload/2-2022/images/2022-05-25/2-1653445668-926-width740height481.jpg'
+                                                    <Image style={{
+                                                        width: 150,
+                                                        height: 100,
+                                                        marginLeft: 10
                                                     }}
-                                                />
-                                                <TouchableOpacity style={{
-                                                    marginTop: 30,
-                                                    backgroundColor: 'red',
-                                                    height: 40,
-                                                    justifyContent: 'center',
-                                                    alignItems: 'center',
-                                                    borderRadius: 10,
-                                                    flexDirection: 'row'
+                                                        source={{
+                                                            uri: image.filename
+                                                        }}
+                                                    />
 
-                                                }}>
-                                                    <AntDesign name="delete" size={20} color="white" />
-                                                    <Text style={{
-                                                        color: 'white',
-                                                        paddingVertical: 10,
-                                                        marginLeft: 2,
-                                                        marginRight: 2
+
+                                                    <TouchableOpacity style={{
+                                                        marginTop: 30,
+                                                        backgroundColor: 'red',
+                                                        height: 40,
+                                                        justifyContent: 'center',
+                                                        alignItems: 'center',
+                                                        borderRadius: 10,
+                                                        flexDirection: 'row'
                                                     }}>
-                                                        Xóa
-                                                    </Text>
-                                                </TouchableOpacity>
-                                            </View>
+                                                        <AntDesign name="delete" size={20} color="white" style={{
+                                                            marginLeft: 3
+                                                        }} />
+                                                        <Text style={{
+                                                            color: 'white',
+                                                            paddingVertical: 10,
+                                                            marginLeft: 2,
+                                                            marginRight: 2
+                                                        }}>
+                                                            Xóa
+                                                        </Text>
+                                                    </TouchableOpacity>
+                                                </View>
+
+                                            ))}
+
                                             {/* Tính tổng số ảnh */}
                                             <View>
                                                 <Text style={{
@@ -1177,7 +1228,7 @@ const Active_Order = ({ navigation }) => {
                                                         <TextInput placeholder="Username" style={styles.textInput} />
                                                         <View style={styles.btnContainer}>
                                                             <Button title="Đóng" onPress={toggleModal} />
-                                                            <Button title="Submit" onPress={() => null} />
+                                                            <Button title="Submit" onPress={() => handerCommnet()} />
                                                         </View>
                                                     </View>
                                                 </TouchableWithoutFeedback>

@@ -13,10 +13,13 @@ import CallPostApi from '../../../Models/CallPostApi';
 import { useEffect, useRef } from 'react'
 import Spinner from 'react-native-loading-spinner-overlay';
 import { useFocusEffect } from '@react-navigation/native';
+import * as Notifications from 'expo-notifications';
+import Axios from 'axios';
+
 
 const Pending_orders = ({ navigation }) => {
 
-    const URL = 'http://192.168.0.102:3000/v1/api';
+    const URL = 'http://192.168.1.101:3000/v1/api';
 
     const [selectedIndex, setSelectedIndex] = useState(0);
 
@@ -104,6 +107,39 @@ const Pending_orders = ({ navigation }) => {
         }
     };
 
+    //thông báo khi có đơn hàng
+    Notifications.setNotificationHandler({
+        handleNotification: async () => ({
+            shouldShowAlert: true,
+            shouldPlaySound: false,
+            shouldSetBadge: false,
+        }),
+    });
+
+    const getNotification = async () => {
+
+        const { status } = await Notifications.getPermissionsAsync()
+        if (status !== 'granted') {
+            const { status } = await Notifications.requestPermissionsAsync()
+            if (status !== 'granted') {
+                alert('Looix')
+                return;
+            }
+        }
+
+        const tokenData = await Notifications.getExpoPushTokenAsync()
+        const token = await tokenData.data
+        const message = {
+            to: token,
+            title: "Bạn có 1 đơn hàng mới !!!",
+            body: 'Nhấn Vào Để Xem Chi Tiết!!'
+        }
+
+        await Axios.post('https://api.expo.dev/v2/push/send', message)
+            .catch(err => console.log(err))
+
+    }
+
     // Lấy token và id của user 
     const [id, setId] = useState()
     const [token, setToken] = useState()
@@ -159,12 +195,9 @@ const Pending_orders = ({ navigation }) => {
     const [contacts, setContacts] = useState([])
 
     const GetApiorders = async () => {
-        console.log(id)
-
 
         const accessToken = await getToken()
         const id = await getID()
-
 
         const cleanedJwtString = accessToken.replace(/^"|"$/g, '');
 
@@ -172,7 +205,7 @@ const Pending_orders = ({ navigation }) => {
             method: 'POST',
             headers: {
                 "Content-Type": "application/json",
-                "x-api-key": "a9ae60c5abf0771d5cfc763a143bd796723733b7d2fa537e940dbad50edfcf1bf0f8d25096264293e2d9deb9df2515a241bedda3045777be6ebc38c35c3ac141",
+                "x-api-key": "39081e3d21dc8f2c3fddaff1ae20142b0ae3a0c1849da2a3bd753ddf8db599d983b28c681972c5ecc8990f164527f5d4a0a1820240de22e80b0f61dfbdedde7d",
                 "authorization": cleanedJwtString,
                 "x-client-id": id
             }
@@ -181,24 +214,27 @@ const Pending_orders = ({ navigation }) => {
         // Lấy dữ liệu của khách hàng
         fetch(URL + '/orders/getpending/' + id, requestOptions)
             .then((data) => {
+
+                console.log(requestOptions)
                 return data.json()
             })
             .then(data => {
+
+                console.log(data.metadata)
                 // if (data.metadata && Array.isArray(data.metadata)) {
+                // getNotification()
                 setOrders(data.metadata);
                 const metadata = data.metadata;
                 const contacts = metadata.map((item) => item.contacts);
-                setContacts(data.metadata);
+                setContacts(contacts);
+                // console.log({ contacts })
                 setIsLoading(false);
                 // } else {
                 //     console.error('Invalid API response:', data);
                 // }
-
             })
 
     }
-
-    // console.log(contacts)
 
     // console.log(contacts.flat())
 
@@ -208,21 +244,19 @@ const Pending_orders = ({ navigation }) => {
 
 
 
-    // console.log(orders)
-
-
     //xử lý khi đặt đơn
     const handerSubmit = async (id1) => {
 
-        console.log(id1)
         const accessToken = await getToken()
+        const id = await getID()
 
         const cleanedJwtString = accessToken.replace(/^"|"$/g, '');
+
         const requestOptions = {
             method: 'POST',
             headers: {
                 "Content-Type": "application/json",
-                "x-api-key": "a9ae60c5abf0771d5cfc763a143bd796723733b7d2fa537e940dbad50edfcf1bf0f8d25096264293e2d9deb9df2515a241bedda3045777be6ebc38c35c3ac141",
+                "x-api-key": "39081e3d21dc8f2c3fddaff1ae20142b0ae3a0c1849da2a3bd753ddf8db599d983b28c681972c5ecc8990f164527f5d4a0a1820240de22e80b0f61dfbdedde7d",
                 "authorization": cleanedJwtString,
                 "x-client-id": id
             }
@@ -233,12 +267,9 @@ const Pending_orders = ({ navigation }) => {
             .then(() => {
                 GetApiorders()
             })
-
-
     }
 
-    console.log(contacts)
-
+    // console.log({ orders })
 
     return (
         <SafeAreaView>
@@ -577,7 +608,6 @@ const Pending_orders = ({ navigation }) => {
 
                                                 }}>
                                                 <CheckBox
-                                                    key={option.id}
                                                     title={option.label}
                                                     checked={checkedItems.includes(option.value)}
                                                     onPress={() => handleCheckBoxChange(option.value)}
@@ -716,42 +746,111 @@ const Pending_orders = ({ navigation }) => {
                         textContent={'Loading...'}
                         textStyle={{ color: '#FFF' }}
                     />
-                    <View>
-                        <View>
-                            {contacts && contacts.map(order => (
-                                <View key={order.id}>
-                                    <View style={{
-                                        width: '100%'
+                </View>
+            </View>
+            <View>
+                <View >
+                    {contacts && contacts.map(order => (
+                        <View key={order.id}
+                            style={{
+                                justifyContent: 'center',
+                                alignItems: 'center',
+                            }}
+                        >
+                            <View style={{
+                                width: '90%'
 
-                                    }}>
-                                        <Text>
-                                            {order.id}
-                                        </Text>
-                                        <View style={{
-                                            flexDirection: 'row',
-                                            justifyContent: 'space-around',
+                            }}>
+                                <View>
+                                    <View
+                                        style={{
+                                            backgroundColor: '#088db5',
+                                            justifyContent: 'center',
+                                            alignItems: 'center',
+                                            padding: 10
                                         }}>
-                                            <TouchableOpacity
-                                                onPress={() => handerCance()}
-                                            >
+                                        <View style={{
+                                            width: '80%',
+                                            backgroundColor: 'green',
+                                            padding: 10,
+                                            height: 150
+                                        }}>
+                                            <Text style={{
+                                                color: 'white',
+                                                fontSize: 16,
+                                                marginBottom: 6
+                                            }}>
+
+                                                MKH {order.id} -
+
+                                                {order.name} - {order.formatted_address}
+                                            </Text>
+
+                                            <View style={{
+                                                width: '100%',
+                                                marginTop: 30
+                                            }}>
+                                                <View style={{
+                                                    flexDirection: 'row',
+                                                    justifyContent: 'space-around',
+                                                }}>
+                                                    <TouchableOpacity
+                                                        onPress={() => handerCance()}
+                                                        style={{
+                                                            backgroundColor: 'coral',
+                                                            padding: 10
+                                                        }}
+                                                    >
+                                                        <Text style={{
+                                                            color: 'white'
+                                                        }}>
+                                                            Hủy
+                                                            {order.ordersId}
+                                                        </Text>
+                                                    </TouchableOpacity>
+                                                    <TouchableOpacity
+                                                        onPress={() => handerSubmit(order.id)}
+                                                        style={{
+                                                            backgroundColor: 'coral',
+                                                            padding: 10
+                                                        }}
+                                                    >
+                                                        <Text style={{
+                                                            color: 'white'
+                                                        }}>
+                                                            Xác Nhận
+                                                        </Text>
+                                                    </TouchableOpacity>
+                                                </View>
+
+                                                <View style={{
+                                                    justifyContent: 'center',
+                                                    alignItems: 'center'
+                                                }}>
+                                                    <Text style={{
+                                                        textAlign: 'center',
+                                                        marginTop: 20,
+                                                        color: 'white'
+                                                    }}>
+                                                        Hết Giờ
+                                                    </Text>
+                                                </View>
+                                            </View>
+                                        </View>
+
+                                        <View>
+                                            <TouchableOpacity>
                                                 <Text>
-                                                    Hủy
-                                                    {order.ordersId}
-                                                </Text>
-                                            </TouchableOpacity>
-                                            <TouchableOpacity
-                                                onPress={() => handerSubmit(order.id)}
-                                            >
-                                                <Text>
-                                                    Xác Nhận
+                                                    Phiếu Mượn Hàng
                                                 </Text>
                                             </TouchableOpacity>
                                         </View>
                                     </View>
                                 </View>
-                            ))}
+
+                            </View>
                         </View>
-                    </View>
+                    ))}
                 </View>
             </View >
         </SafeAreaView >

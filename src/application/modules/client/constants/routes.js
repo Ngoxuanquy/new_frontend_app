@@ -49,6 +49,8 @@ export default {
     C_QRCode: 'QRCode',
     ChupAnh: 'Chup',
     ThanhToan: 'ThanhToan',
+    ChamCong: 'ChamCong',
+
 
 
 
