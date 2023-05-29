@@ -4,6 +4,7 @@ import IoIcon from 'react-native-vector-icons/Ionicons'
 import DatePicker from 'react-native-modern-datepicker'
 import { useState } from 'react'
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useFocusEffect } from '@react-navigation/native';
 
 const Individual = () => {
     const [fromDate, setFromDate] = useState('')
@@ -62,6 +63,50 @@ const Individual = () => {
         }
     };
 
+
+
+    //Lấy Api của chỉ số cá nhân
+
+    const [acceptdailyresultdetails, setAcceptdailyresultdetails] = useState([])
+    useFocusEffect(
+        React.useCallback(() => {
+            const GetApi = async () => {
+                const accessToken = await getToken()
+                const id = await getID()
+                const cleanedJwtString = accessToken.replace(/^"|"$/g, '');
+
+                const requestOptions = {
+                    method: 'POST',
+                    headers: {
+                        "Content-Type": "application/json",
+                        "x-api-key": "d420e946ae282dfadafede6b060ae66e3ffd2a9cddfe3dc9b4cd070f98ad4985aeab65e2751677f21f91f34c2a22a1f95bf0b330fd2eb0dfb2c1fb53a7c8d97a",
+                        "authorization": cleanedJwtString,
+                        "x-client-id": id
+                    }
+                };
+
+                // Lấy dữ liệu của khách hàng
+                fetch(URL + '/daily_results/get/' + id, requestOptions)
+                    .then((data) => {
+                        return data.json()
+                    })
+                    .then(data => {
+                        // console.log(data.metadata)
+                        if (data.metadata.length !== 0) {
+                            setAcceptdailyresultdetails(data.metadata)
+                        }
+                        else {
+                            Createdaily_results()
+                            // console.log('tạo')
+                        }
+                    })
+            }
+            GetApi()
+        }, [])
+    );
+
+
+
     const Createdaily_results = async () => {
         const accessToken = await getToken()
         const id = await getID()
@@ -71,31 +116,13 @@ const Individual = () => {
             method: 'POST',
             headers: {
                 "Content-Type": "application/json",
-                "x-api-key": "39081e3d21dc8f2c3fddaff1ae20142b0ae3a0c1849da2a3bd753ddf8db599d983b28c681972c5ecc8990f164527f5d4a0a1820240de22e80b0f61dfbdedde7d",
+                "x-api-key": "d420e946ae282dfadafede6b060ae66e3ffd2a9cddfe3dc9b4cd070f98ad4985aeab65e2751677f21f91f34c2a22a1f95bf0b330fd2eb0dfb2c1fb53a7c8d97a",
                 "authorization": cleanedJwtString,
                 "x-client-id": id
             },
             body: JSON.stringify({
                 user_id: id,
-                business_id: 1,
-                type: "your_type_value",
-                ca: "your_ca_value",
-                so_cong: 0,
-                bac_luong: "your_bac_luong_value",
-                luong_cb: 0,
-                doanh_so: 0,
-                doanh_so_yc: 0,
-                so_don_yc: 0,
-                tb_don_yc: 0,
-                ds_ban_may: 0,
-                don_ban_may: 0,
-                don_ps: 0,
-                don_vs: 0,
-                thuong: 0,
-                phat: 0,
-                chiet_khau: 0,
-                don_them: 0,
-                thu_nhap_ngay: 0
+
             })
         };
 
@@ -104,51 +131,9 @@ const Individual = () => {
         fetch(URL + '/daily_results/create', requestOptions)
             .then(() => {
                 GetApi()
+                return;
             })
     }
-
-    //Lấy Api của chỉ số cá nhân
-
-    const [acceptdailyresultdetails, setAcceptdailyresultdetails] = useState([])
-
-    const GetApi = async () => {
-
-        const accessToken = await getToken()
-        const id = await getID()
-        const cleanedJwtString = accessToken.replace(/^"|"$/g, '');
-
-        const requestOptions = {
-            method: 'POST',
-            headers: {
-                "Content-Type": "application/json",
-                "x-api-key": "39081e3d21dc8f2c3fddaff1ae20142b0ae3a0c1849da2a3bd753ddf8db599d983b28c681972c5ecc8990f164527f5d4a0a1820240de22e80b0f61dfbdedde7d",
-                "authorization": cleanedJwtString,
-                "x-client-id": id
-            }
-        };
-
-
-        // Lấy dữ liệu của khách hàng
-        fetch(URL + '/daily_results/get/' + id, requestOptions)
-            .then((data) => {
-                return data.json()
-            })
-            .then(data => {
-                // console.log(data.metadata)
-                if (data.metadata.length !== 0) {
-                    setAcceptdailyresultdetails(data.metadata)
-                }
-                else {
-                    Createdaily_results()
-                    console.log('tạo')
-                }
-            })
-    }
-
-    useEffect(() => {
-        GetApi()
-    }, [])
-
 
     //Tạo Chỉ Số Cá Nhân Theo Từng Ngày
 
@@ -325,7 +310,7 @@ const Individual = () => {
                             <RenderItem title={'Gía trị TB yêu cầu'} value={700000} />
                             <RenderItem title={'Gía trị TB còn thiếu'} value={700000} />
                             <RenderItem title={'Tổng số tiền còn thiếu'} value={0} />
-                            <RenderItem title={'Số đơn vệ sinh'} value={0 + ' đơn'} />
+                            <RenderItem title={'Số đơn vệ sinh'} value={acceptdailyresultdetail.don_vs + ' đơn'} />
                             <RenderItem title={'Tỉ lệ vệ sinh TT'} value={0} />
                             <RenderItem title={'OLE'} value={0 + '%'} />
                             <RenderItem title={'Số km trung bình/đơn'} value={0} />

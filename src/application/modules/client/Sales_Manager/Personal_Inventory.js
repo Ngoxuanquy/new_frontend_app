@@ -5,7 +5,13 @@ import SelectDropdown from 'react-native-select-dropdown'
 import Select from 'react-select';
 import { SearchBar } from '@rneui/themed';
 import { Table, Row, Rows } from 'react-native-table-component';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useFocusEffect } from '@react-navigation/native';
+
+
 const Personal_Inventory = () => {
+
+    const URL = 'http://192.168.1.101:3000/v1/api';
 
     const [selectedOption, setSelectedOption] = useState(null);
     const [search, setSearch] = useState("");
@@ -15,10 +21,73 @@ const Personal_Inventory = () => {
         { id: 1, ngay: 'ngày 1', MaKH: 122, HDS: 123, TenKH: 'Ngô Xuân Quy', BPThucHien: 'abc', TrinhTrangTT: 'Đã Thanh Toán', HinhThucTT: 'TienMat', TongCong: 1222, ConNo: 0, NgGiuTien: 'MB12312', HoatDong: 'Hoạt Động' },
         { id: 2, title: 'data2', value: 122 },
         { id: 3, title: 'data3', value: 122 },
-
-
     ]
 
+    //lấy id từ AsyncStorage
+    const getID = async () => {
+        try {
+            const id = await AsyncStorage.getItem('id');
+            console.log('Token đã được lấy thành công');
+            return id;
+        } catch (error) {
+            console.log('Lỗi khi lấy token: ', error);
+        }
+    };
+
+    //lấy token từ AsyncStorage
+    const getToken = async () => {
+        try {
+            const token = await AsyncStorage.getItem('accessToken');
+            console.log('Token đã được lấy thành công');
+            return token;
+        } catch (error) {
+            console.log('Lỗi khi lấy token: ', error);
+        }
+    };
+
+
+
+    //Lấy hàng tồn kho cửa từng nhân viên
+    //khai báo tồn kho kết hợp với tên products
+    const [inventoryproducts, setInventoryProduct] = useState([])
+    useFocusEffect(
+        React.useCallback(() => {
+            const getProductVariation = async (id_tran) => {
+                const accessToken = await getToken()
+                const id = await getID()
+
+                const cleanedJwtString = accessToken.replace(/^"|"$/g, '');
+
+                const requestOptions = {
+                    method: 'POST',
+                    headers: {
+                        "Content-Type": "application/json",
+                        "x-api-key": "d420e946ae282dfadafede6b060ae66e3ffd2a9cddfe3dc9b4cd070f98ad4985aeab65e2751677f21f91f34c2a22a1f95bf0b330fd2eb0dfb2c1fb53a7c8d97a",
+                        "authorization": cleanedJwtString,
+                        "x-client-id": id
+                    },
+                };
+
+                // Lấy dữ liệu của khách hàng
+                fetch(URL + '/variation_location_details/get/' + id, requestOptions)
+                    .then((data) => data.json())
+                    .then((data) => {
+
+                        // Create a map to store the quantity available for each product ID
+                        data.metadata.forEach(item => {
+                            item.name = item.products.name;
+                            delete item.products;
+                        });
+
+                        // Print the updated response
+                        setInventoryProduct(data.metadata);
+                    })
+            }
+            getProductVariation()
+        }, [])
+    );
+
+    console.log(inventoryproducts)
 
     return (
         <ScrollView>
@@ -338,38 +407,38 @@ const Personal_Inventory = () => {
                                     </View>
 
                                 </View>
-                                {datas.map(data => (
+                                {inventoryproducts.map(data => (
                                     <View style={{ flexDirection: 'row' }}>
                                         <>
                                             <View style={{ width: 120, borderWidth: 1, borderColor: '#C1C0B9', justifyContent: 'center', }}>
                                                 <Text style={{
                                                     textAlign: 'center',
                                                     padding: 10
-                                                }}>{data.ngay}</Text>
+                                                }}>{data.id}</Text>
                                             </View>
                                             <View style={{ width: 120, borderWidth: 1, borderColor: '#C1C0B9', justifyContent: 'center', }}>
                                                 <Text style={{
                                                     textAlign: 'center',
                                                     padding: 10
-                                                }}>{data.MaKH}</Text>
+                                                }}>SP{data.id}</Text>
                                             </View>
                                             <View style={{ width: 120, borderWidth: 1, borderColor: '#C1C0B9', justifyContent: 'center', }}>
                                                 <Text style={{
                                                     textAlign: 'center',
                                                     padding: 10
-                                                }}>{data.HDS}</Text>
+                                                }}>{data.name}</Text>
                                             </View>
                                             <View style={{ width: 120, borderWidth: 1, borderColor: '#C1C0B9', justifyContent: 'center', }}>
                                                 <Text style={{
                                                     textAlign: 'center',
                                                     padding: 10
-                                                }}>{data.TenKH}</Text>
+                                                }}>{data.qty_available}</Text>
                                             </View>
                                             <View style={{ width: 120, borderWidth: 1, borderColor: '#C1C0B9', justifyContent: 'center', }}>
                                                 <Text style={{
                                                     textAlign: 'center',
                                                     padding: 10
-                                                }}>{data.BPThucHien}</Text>
+                                                }}>{data.qty_available}</Text>
                                             </View>
 
                                         </>

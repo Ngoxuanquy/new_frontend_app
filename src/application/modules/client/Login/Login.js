@@ -43,6 +43,7 @@ export default function Login({ navigation }) {
 
                 // console.log('aa')
                 AsyncStorage.setItem('id', JSON.stringify(data.metadata.shop.id));
+                AsyncStorage.setItem('username', JSON.stringify(data.metadata.shop.username));
                 AsyncStorage.setItem('timeeexp', JSON.stringify(data.metadata.tokens.timeExp));
                 navigation.replace('Home')
             }

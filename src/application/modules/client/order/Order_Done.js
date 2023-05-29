@@ -58,7 +58,7 @@ const Order_Done = ({ navigation }) => {
                     method: 'POST',
                     headers: {
                         "Content-Type": "application/json",
-                        "x-api-key": "39081e3d21dc8f2c3fddaff1ae20142b0ae3a0c1849da2a3bd753ddf8db599d983b28c681972c5ecc8990f164527f5d4a0a1820240de22e80b0f61dfbdedde7d",
+                        "x-api-key": "d420e946ae282dfadafede6b060ae66e3ffd2a9cddfe3dc9b4cd070f98ad4985aeab65e2751677f21f91f34c2a22a1f95bf0b330fd2eb0dfb2c1fb53a7c8d97a",
                         "authorization": cleanedJwtString,
                         "x-client-id": id
                     }
@@ -106,7 +106,7 @@ const Order_Done = ({ navigation }) => {
             method: 'POST',
             headers: {
                 "Content-Type": "application/json",
-                "x-api-key": "39081e3d21dc8f2c3fddaff1ae20142b0ae3a0c1849da2a3bd753ddf8db599d983b28c681972c5ecc8990f164527f5d4a0a1820240de22e80b0f61dfbdedde7d",
+                "x-api-key": "d420e946ae282dfadafede6b060ae66e3ffd2a9cddfe3dc9b4cd070f98ad4985aeab65e2751677f21f91f34c2a22a1f95bf0b330fd2eb0dfb2c1fb53a7c8d97a",
                 "authorization": cleanedJwtString,
                 "x-client-id": id
             }
@@ -145,7 +145,7 @@ const Order_Done = ({ navigation }) => {
             method: 'POST',
             headers: {
                 "Content-Type": "application/json",
-                "x-api-key": "39081e3d21dc8f2c3fddaff1ae20142b0ae3a0c1849da2a3bd753ddf8db599d983b28c681972c5ecc8990f164527f5d4a0a1820240de22e80b0f61dfbdedde7d",
+                "x-api-key": "d420e946ae282dfadafede6b060ae66e3ffd2a9cddfe3dc9b4cd070f98ad4985aeab65e2751677f21f91f34c2a22a1f95bf0b330fd2eb0dfb2c1fb53a7c8d97a",
                 "authorization": cleanedJwtString,
                 "x-client-id": id
             }
@@ -762,22 +762,26 @@ const Order_Done = ({ navigation }) => {
                                             <View style={{
                                                 flexDirection: 'row',
                                                 justifyContent: 'space-around',
-                                                marginBottom: 10,
+                                                // marginBottom: 10,
                                                 marginTop: 10
                                             }}>
-                                                <Text>
+                                                <Text style={{
+                                                    textAlign: 'center'
+                                                }}>
                                                     Tên Sp
                                                 </Text>
 
-                                                <Text>
+                                                <Text style={{
+                                                    textAlign: 'center'
+                                                }}>
                                                     Số Lượng
                                                 </Text>
-                                                <Text>
+                                                {/* <Text>
                                                     Giá
                                                 </Text>
                                                 <Text>
                                                     Thành Tiền
-                                                </Text>
+                                                </Text> */}
 
                                             </View>
 
@@ -791,7 +795,9 @@ const Order_Done = ({ navigation }) => {
                                                         borderBottomColor: 'gray',
 
                                                     }}>
-                                                        <Text>
+                                                        <Text style={{
+                                                            textAlign: 'center'
+                                                        }}>
                                                             {ca.name}
                                                         </Text>
 
@@ -814,7 +820,7 @@ const Order_Done = ({ navigation }) => {
                                                             </View>
 
                                                         </View>
-                                                        <View style={{
+                                                        {/* <View style={{
                                                             justifyContent: "center",
                                                             alignItems: 'center'
                                                         }}>
@@ -834,7 +840,7 @@ const Order_Done = ({ navigation }) => {
                                                             }}>
                                                                 {ca.price * ca.quantity}
                                                             </Text>
-                                                        </View>
+                                                        </View> */}
                                                     </View>
                                                 </View>
                                             ))}

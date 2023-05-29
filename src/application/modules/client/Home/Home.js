@@ -10,15 +10,22 @@ import { View, Text, Button, TouchableOpacity, Dimensions } from 'react-native'
 //     StackedBarChart
 // } from "react-native-chart-kit";
 import Phone from '../../../Components/Phone/Phone';
+import { useFocusEffect } from '@react-navigation/native';
 
 import CallApi from '../../../Models/CallPostApi';
 import Axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as Notifications from 'expo-notifications';
 import * as Permissions from 'expo-permissions';
+import Spinner from 'react-native-loading-spinner-overlay';
+
+
 const Home = ({ navigation }) => {
 
     const [tuans, setTuan] = useState([])
+    const URL = 'http://192.168.1.101:3000/v1/api';
+
+    console.log(new Date())
 
     Notifications.setNotificationHandler({
         handleNotification: async () => ({
@@ -52,19 +59,42 @@ const Home = ({ navigation }) => {
             .catch(err => console.log(err))
 
     }
-    // async function Gui() {
 
-    //     const message = {
-    //         to: token,
-    //         sound: 'https://nhacchuong123.com/nhac-chuong/abc/Nhac-chuong-iphone-14-mac-dinh.mp3',
-    //         title: taikhoan + " Muốn Mượn Hàng Của Bạn!!",
-    //         body: 'Nhấn Vào Để Xem Chi Tiết!!'
-    //     }
+    //Lấy apis chấm công
+    const [chamcongs, setChamCong] = useState([])
+    useFocusEffect(
+        React.useCallback(() => {
+            const getApisChamCong = async (id1) => {
 
-    //     await Axios.post('https://api.expo.dev/v2/push/send', message)
-    //         .catch(err => console.log(err))
+                const accessToken = await getToken()
+                const id = await getID()
 
-    // }
+                const cleanedJwtString = accessToken.replace(/^"|"$/g, '');
+
+                const requestOptions = {
+                    method: 'POST',
+                    headers: {
+                        "Content-Type": "application/json",
+                        "x-api-key": "d420e946ae282dfadafede6b060ae66e3ffd2a9cddfe3dc9b4cd070f98ad4985aeab65e2751677f21f91f34c2a22a1f95bf0b330fd2eb0dfb2c1fb53a7c8d97a",
+                        "authorization": cleanedJwtString,
+                        "x-client-id": id
+                    },
+
+                };
+
+                // Viết mã kiểm tra token đã hết hạn
+                fetch(URL + '/chamcong/get/' + id, requestOptions)
+                    .then((data) => {
+                        return data.json()
+                    })
+                    .then(data => {
+                        setIsLoading(false)
+                        setChamCong(data.metadata)
+                    })
+            }
+            getApisChamCong();
+        }, [])
+    );
 
     useEffect(() => {
         getNotification()
@@ -166,6 +196,16 @@ const Home = ({ navigation }) => {
         // Gọi hàm lấy dữ liệu từ AsyncStorage
         getUserData();
     });
+    //lấy id từ AsyncStorage
+    const getID = async () => {
+        try {
+            const id = await AsyncStorage.getItem('id');
+            console.log('Token đã được lấy thành công');
+            return id;
+        } catch (error) {
+            console.log('Lỗi khi lấy token: ', error);
+        }
+    };
 
     //lấy token từ AsyncStorage
     const getToken = async () => {
@@ -185,15 +225,13 @@ const Home = ({ navigation }) => {
 
         const accessToken = await getToken()
 
-        console.log({ accessToken })
-
         const cleanedJwtString = accessToken.replace(/^"|"$/g, '');
 
         const requestOptions = {
             method: 'POST',
             headers: {
                 "Content-Type": "application/json",
-                "x-api-key": "39081e3d21dc8f2c3fddaff1ae20142b0ae3a0c1849da2a3bd753ddf8db599d983b28c681972c5ecc8990f164527f5d4a0a1820240de22e80b0f61dfbdedde7d",
+                "x-api-key": "d420e946ae282dfadafede6b060ae66e3ffd2a9cddfe3dc9b4cd070f98ad4985aeab65e2751677f21f91f34c2a22a1f95bf0b330fd2eb0dfb2c1fb53a7c8d97a",
                 "authorization": cleanedJwtString,
                 "x-client-id": id
             }
@@ -218,9 +256,6 @@ const Home = ({ navigation }) => {
 
     const [apis, setApi] = useState([])
 
-    console.log('abc')
-
-
     // Hàm kiểm tra token đã hết hạn
     function isTokenExpired() {
 
@@ -230,7 +265,7 @@ const Home = ({ navigation }) => {
             method: 'POST',
             headers: {
                 "Content-Type": "application/json",
-                "x-api-key": "39081e3d21dc8f2c3fddaff1ae20142b0ae3a0c1849da2a3bd753ddf8db599d983b28c681972c5ecc8990f164527f5d4a0a1820240de22e80b0f61dfbdedde7d",
+                "x-api-key": "d420e946ae282dfadafede6b060ae66e3ffd2a9cddfe3dc9b4cd070f98ad4985aeab65e2751677f21f91f34c2a22a1f95bf0b330fd2eb0dfb2c1fb53a7c8d97a",
                 "authorization": cleanedJwtString,
                 "x-client-id": id
             }
@@ -259,13 +294,11 @@ const Home = ({ navigation }) => {
             method: 'POST',
             headers: {
                 "Content-Type": "application/json",
-                "x-api-key": "39081e3d21dc8f2c3fddaff1ae20142b0ae3a0c1849da2a3bd753ddf8db599d983b28c681972c5ecc8990f164527f5d4a0a1820240de22e80b0f61dfbdedde7d",
+                "x-api-key": "d420e946ae282dfadafede6b060ae66e3ffd2a9cddfe3dc9b4cd070f98ad4985aeab65e2751677f21f91f34c2a22a1f95bf0b330fd2eb0dfb2c1fb53a7c8d97a",
                 "refeshToken": cleanedJwtString,
                 "x-client-id": id
             }
         };
-
-        console.log(requestOptions)
 
         // Viết mã gọi lại token mới từ máy chủ
         await fetch('http://192.168.1.101:3000/v1/api/handlerRefreshToken', requestOptions)
@@ -308,26 +341,115 @@ const Home = ({ navigation }) => {
         }
     }
 
+    //Lấy Api của chỉ số cá nhân
+
+    const [acceptdailyresultdetails, setAcceptdailyresultdetails] = useState([])
+
+    const GetApi = async () => {
+
+        const accessToken = await getToken()
+        const id = await getID()
+        const cleanedJwtString = accessToken.replace(/^"|"$/g, '');
+
+        const requestOptions = {
+            method: 'POST',
+            headers: {
+                "Content-Type": "application/json",
+                "x-api-key": "d420e946ae282dfadafede6b060ae66e3ffd2a9cddfe3dc9b4cd070f98ad4985aeab65e2751677f21f91f34c2a22a1f95bf0b330fd2eb0dfb2c1fb53a7c8d97a",
+                "authorization": cleanedJwtString,
+                "x-client-id": id
+            }
+        };
+
+
+        // Lấy dữ liệu của khách hàng
+        fetch(URL + '/daily_results/get/' + id, requestOptions)
+            .then((data) => {
+                return data.json()
+            })
+            .then(data => {
+                // console.log(data.metadata)
+                if (data.metadata.length !== 0) {
+                    setAcceptdailyresultdetails(data.metadata)
+                }
+                else {
+                    Createdaily_results()
+                    // console.log('tạo')
+                }
+            })
+    }
+
+    useEffect(() => {
+        GetApi()
+    }, [])
+
+
+    const Createdaily_results = async () => {
+        const accessToken = await getToken()
+        const id = await getID()
+        const cleanedJwtString = accessToken.replace(/^"|"$/g, '');
+
+        const requestOptions = {
+            method: 'POST',
+            headers: {
+                "Content-Type": "application/json",
+                "x-api-key": "d420e946ae282dfadafede6b060ae66e3ffd2a9cddfe3dc9b4cd070f98ad4985aeab65e2751677f21f91f34c2a22a1f95bf0b330fd2eb0dfb2c1fb53a7c8d97a",
+                "authorization": cleanedJwtString,
+                "x-client-id": id
+            },
+            body: JSON.stringify({
+                user_id: id,
+
+            })
+        };
+
+
+        // Lấy dữ liệu của khách hàng
+        fetch(URL + '/daily_results/create', requestOptions)
+            .then(() => {
+                // GetApi()
+                return;
+            })
+    }
+
+    console.log(chamcongs)
+
+    const chuyenthanhgio = (value) => {
+        const test = value && value.slice(11, 19)
+        return test;
+    }
+
+
+    //khai báo loding
+    const [isLoading, setIsLoading] = useState(true)
+
 
 
     return (
         <ScrollView style={{ paddingHorizontal: 12 }}>
             <View>
+                <Spinner
+                    visible={isLoading}
+                    textContent={'Loading...'}
+                    textStyle={{ color: '#FFF' }}
+                />
                 <Text style={{ fontSize: 18, paddingVertical: 8 }}>Chấm công hôm nay</Text>
-                <View>
-                    <Text style={{ paddingVertical: 12, borderWidth: 0.4, paddingLeft: 8 }}>
-                        Sáng vào:
-                    </Text>
-                    <Text style={{ paddingVertical: 12, borderWidth: 0.4, paddingLeft: 8 }}>
-                        Sáng ra:
-                    </Text>
-                    <Text style={{ paddingVertical: 12, borderWidth: 0.4, paddingLeft: 8 }}>
-                        Chiều vào:
-                    </Text>
-                    <Text style={{ paddingVertical: 12, borderWidth: 0.4, paddingLeft: 8 }}>
-                        Chiều ra:
-                    </Text>
-                </View>
+                {chamcongs.map(chamcong => (
+                    <View key={chamcong.id}>
+                        <Text style={{ paddingVertical: 12, borderWidth: 0.4, paddingLeft: 8 }}>
+                            Sáng vào: {chuyenthanhgio(chamcong.vao_sang)}
+                        </Text>
+                        <Text style={{ paddingVertical: 12, borderWidth: 0.4, paddingLeft: 8 }}>
+                            Sáng ra:{chuyenthanhgio(chamcong.ra_sang)}
+                        </Text>
+                        <Text style={{ paddingVertical: 12, borderWidth: 0.4, paddingLeft: 8 }}>
+                            Chiều vào: {chuyenthanhgio(chamcong.vao_chieu)}
+                        </Text>
+                        <Text style={{ paddingVertical: 12, borderWidth: 0.4, paddingLeft: 8 }}>
+                            Chiều ra: {chuyenthanhgio(chamcong.ra_chieu)}
+                        </Text>
+                    </View>
+                ))}
             </View>
 
             <View style={{ marginTop: 20 }}>

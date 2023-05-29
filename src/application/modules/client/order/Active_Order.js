@@ -63,7 +63,7 @@ const Active_Order = ({ navigation }) => {
             method: 'POST',
             headers: {
                 "Content-Type": "application/json",
-                "x-api-key": "39081e3d21dc8f2c3fddaff1ae20142b0ae3a0c1849da2a3bd753ddf8db599d983b28c681972c5ecc8990f164527f5d4a0a1820240de22e80b0f61dfbdedde7d",
+                "x-api-key": "d420e946ae282dfadafede6b060ae66e3ffd2a9cddfe3dc9b4cd070f98ad4985aeab65e2751677f21f91f34c2a22a1f95bf0b330fd2eb0dfb2c1fb53a7c8d97a",
                 "authorization": cleanedJwtString,
                 "x-client-id": id
             }
@@ -110,7 +110,7 @@ const Active_Order = ({ navigation }) => {
             method: 'POST',
             headers: {
                 "Content-Type": "application/json",
-                "x-api-key": "39081e3d21dc8f2c3fddaff1ae20142b0ae3a0c1849da2a3bd753ddf8db599d983b28c681972c5ecc8990f164527f5d4a0a1820240de22e80b0f61dfbdedde7d",
+                "x-api-key": "d420e946ae282dfadafede6b060ae66e3ffd2a9cddfe3dc9b4cd070f98ad4985aeab65e2751677f21f91f34c2a22a1f95bf0b330fd2eb0dfb2c1fb53a7c8d97a",
                 "authorization": cleanedJwtString,
                 "x-client-id": id
             },
@@ -243,7 +243,7 @@ const Active_Order = ({ navigation }) => {
                     method: 'POST',
                     headers: {
                         "Content-Type": "application/json",
-                        "x-api-key": "39081e3d21dc8f2c3fddaff1ae20142b0ae3a0c1849da2a3bd753ddf8db599d983b28c681972c5ecc8990f164527f5d4a0a1820240de22e80b0f61dfbdedde7d",
+                        "x-api-key": "d420e946ae282dfadafede6b060ae66e3ffd2a9cddfe3dc9b4cd070f98ad4985aeab65e2751677f21f91f34c2a22a1f95bf0b330fd2eb0dfb2c1fb53a7c8d97a",
                         "authorization": cleanedJwtString,
                         "x-client-id": id
                     }
@@ -255,24 +255,17 @@ const Active_Order = ({ navigation }) => {
                         return data.json()
                     })
                     .then(data => {
-                        if (data.metadata && Array.isArray(data.metadata)) {
-                            // setOrderAction(data)
-                            // const metadata = data.metadata; // response là đối tượng chứa dữ liệu trả về từ API
-                            // const contacts = metadata.map((item) => item.contacts);
-                            // console.log(contacts);
-                            setOrderAction(data.metadata);
-                            // setContacts(data.metadata[0].contacts);
+                        console.log(data)
+                        setOrderAction(data.metadata);
+                        setIsLoading(false);
 
-                            setIsLoading(false);
 
-                        } else {
-                            console.error('Invalid API response:', data);
-                        }
                     })
             }
             getApiOrder();
         }, [])
     );
+
 
     const handerTinhTien = async (id1) => {
 
@@ -286,7 +279,7 @@ const Active_Order = ({ navigation }) => {
             method: 'POST',
             headers: {
                 "Content-Type": "application/json",
-                "x-api-key": "39081e3d21dc8f2c3fddaff1ae20142b0ae3a0c1849da2a3bd753ddf8db599d983b28c681972c5ecc8990f164527f5d4a0a1820240de22e80b0f61dfbdedde7d",
+                "x-api-key": "d420e946ae282dfadafede6b060ae66e3ffd2a9cddfe3dc9b4cd070f98ad4985aeab65e2751677f21f91f34c2a22a1f95bf0b330fd2eb0dfb2c1fb53a7c8d97a",
                 "authorization": cleanedJwtString,
                 "x-client-id": id
             },
@@ -308,13 +301,12 @@ const Active_Order = ({ navigation }) => {
                 return data.json()
             })
             .then(data => {
-                console.log(data)
                 if (data.status === 200) {
                     const requestOptions1 = {
                         method: 'POST',
                         headers: {
                             "Content-Type": "application/json",
-                            "x-api-key": "39081e3d21dc8f2c3fddaff1ae20142b0ae3a0c1849da2a3bd753ddf8db599d983b28c681972c5ecc8990f164527f5d4a0a1820240de22e80b0f61dfbdedde7d",
+                            "x-api-key": "d420e946ae282dfadafede6b060ae66e3ffd2a9cddfe3dc9b4cd070f98ad4985aeab65e2751677f21f91f34c2a22a1f95bf0b330fd2eb0dfb2c1fb53a7c8d97a",
                             "authorization": cleanedJwtString,
                             "x-client-id": id
                         },
@@ -360,7 +352,7 @@ const Active_Order = ({ navigation }) => {
             method: 'POST',
             headers: {
                 "Content-Type": "application/json",
-                "x-api-key": "39081e3d21dc8f2c3fddaff1ae20142b0ae3a0c1849da2a3bd753ddf8db599d983b28c681972c5ecc8990f164527f5d4a0a1820240de22e80b0f61dfbdedde7d",
+                "x-api-key": "d420e946ae282dfadafede6b060ae66e3ffd2a9cddfe3dc9b4cd070f98ad4985aeab65e2751677f21f91f34c2a22a1f95bf0b330fd2eb0dfb2c1fb53a7c8d97a",
                 "authorization": cleanedJwtString,
                 "x-client-id": id
             }
@@ -373,13 +365,15 @@ const Active_Order = ({ navigation }) => {
                 return data.json()
             })
             .then(data => {
-                // console.log(data.message)
-                if (data.metadata && Array.isArray(data.metadata)) {
-
+                console.log(data.metadata)
+                if (data.metadata.length != 0) {
                     setImages(data.metadata)
+                    setIsLoading(false)
+                }
+                else {
+                    setIsLoading(false)
 
                 }
-                // setIsLoading(false)
 
             })
     }

@@ -95,7 +95,7 @@ export default {
         content: [
             {
                 label: 'Giấy đề nghị, xác nhận',
-                route: routes.ONLEAVE,
+                route: routes.PROPOSALPAPER,
             },
             {
                 label: 'Đơn xin nghỉ phép',
@@ -103,7 +103,7 @@ export default {
             },
             {
                 label: 'Đăng ký lịch Parttime',
-                route: routes.ONLEAVE,
+                route: routes.SIGNUPPARTTIME,
             },
         ],
     },

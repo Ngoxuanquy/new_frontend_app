@@ -13,6 +13,8 @@ import { AntDesign } from '@expo/vector-icons';
 const Listed_POS = () => {
 
     const countries = ["Egypt", "Canada", "Australia", "Ireland"]
+    const hinhthuctt = ["cash", "card"]
+
     const [selectedOption, setSelectedOption] = useState(null);
     const [tuans, setTuan] = useState([])
     const URL = 'http://192.168.1.101:3000/v1/api';
@@ -99,7 +101,7 @@ const Listed_POS = () => {
                     method: 'POST',
                     headers: {
                         "Content-Type": "application/json",
-                        "x-api-key": "39081e3d21dc8f2c3fddaff1ae20142b0ae3a0c1849da2a3bd753ddf8db599d983b28c681972c5ecc8990f164527f5d4a0a1820240de22e80b0f61dfbdedde7d",
+                        "x-api-key": "d420e946ae282dfadafede6b060ae66e3ffd2a9cddfe3dc9b4cd070f98ad4985aeab65e2751677f21f91f34c2a22a1f95bf0b330fd2eb0dfb2c1fb53a7c8d97a",
                         "authorization": cleanedJwtString,
                         "x-client-id": id
                     },
@@ -147,7 +149,7 @@ const Listed_POS = () => {
                     method: 'POST',
                     headers: {
                         "Content-Type": "application/json",
-                        "x-api-key": "39081e3d21dc8f2c3fddaff1ae20142b0ae3a0c1849da2a3bd753ddf8db599d983b28c681972c5ecc8990f164527f5d4a0a1820240de22e80b0f61dfbdedde7d",
+                        "x-api-key": "d420e946ae282dfadafede6b060ae66e3ffd2a9cddfe3dc9b4cd070f98ad4985aeab65e2751677f21f91f34c2a22a1f95bf0b330fd2eb0dfb2c1fb53a7c8d97a",
                         "authorization": cleanedJwtString,
                         "x-client-id": id
                     }
@@ -194,6 +196,8 @@ const Listed_POS = () => {
         }
     }
 
+
+
     //Dữ liệu bảng sản phẩm
     const [sanphams, setSanPham] = useState([])
 
@@ -202,7 +206,7 @@ const Listed_POS = () => {
             const product = products.find(p => p.id === line.product_id);
             const { quantity, unit_price } = line;
             const price = quantity * parseFloat(unit_price);
-            return { name: product.name, quantity, unit_price, price };
+            return { name: product.name, quantity, unit_price, price: product.price };
         });
 
         setSanPham(result)
@@ -214,7 +218,7 @@ const Listed_POS = () => {
 
     // console.log(order_details)
 
-    // console.log(datas)
+    console.log(datas)
 
     // Tính tổng tiền
     const [total, setTotal] = useState()
@@ -222,7 +226,7 @@ const Listed_POS = () => {
         let total = 0;
         for (let i = 0; i < sanphams.length; i++) {
             const item = sanphams[i];
-            const price = item.unit_price;
+            const price = item.price;
             const quantity = item.quantity;
             const itemTotal = price * quantity;
             total += itemTotal;
@@ -230,6 +234,41 @@ const Listed_POS = () => {
         setTotal(total)
     }, [sanphams])
 
+    //xử lý hình thức thanh toán
+    const handerHTTT = async (selectedItem) => {
+        const accessToken = await getToken()
+        const id = await getID()
+
+        const cleanedJwtString = accessToken.replace(/^"|"$/g, '');
+
+        const requestOptions = {
+            method: 'POST',
+            headers: {
+                "Content-Type": "application/json",
+                "x-api-key": "d420e946ae282dfadafede6b060ae66e3ffd2a9cddfe3dc9b4cd070f98ad4985aeab65e2751677f21f91f34c2a22a1f95bf0b330fd2eb0dfb2c1fb53a7c8d97a",
+                "authorization": cleanedJwtString,
+                "x-client-id": id
+            },
+            body: JSON.stringify({
+                id: id,
+                method: selectedItem
+            })
+        };
+
+        // Viết mã kiểm tra token đã hết hạn
+        fetch(URL + '/contacts/get/ordercontactByHTTT', requestOptions)
+            .then((data) => {
+                return data.json()
+            })
+            .then(data => {
+                if (data.metadata && Array.isArray(data.metadata)) {
+                    // setData(data.metadata);
+                    setData(data.metadata)
+                } else {
+                    console.error('Invalid API response:', data);
+                }
+            })
+    }
 
     return (
         <ScrollView>
@@ -373,7 +412,7 @@ const Listed_POS = () => {
                                                     </Text>
                                                 </View>
                                                 {order_details.map(order_detail => (
-                                                    <>
+                                                    <View key={order_detail.id}>
 
                                                         <View style={{
                                                             borderColor: '#ddd',
@@ -474,7 +513,7 @@ const Listed_POS = () => {
                                                             </Text>
                                                         </View>
 
-                                                    </>
+                                                    </View>
                                                 ))}
                                             </View>
                                         </View>
@@ -584,7 +623,7 @@ const Listed_POS = () => {
                                                     <Text style={{
                                                         textAlign: 'center',
                                                         padding: 10
-                                                    }}>{data.unit_price}</Text>
+                                                    }}>{data.price}</Text>
                                                 </View>
                                                 <View style={{ width: 120, borderWidth: 1, borderColor: '#C1C0B9', justifyContent: 'center', }}>
                                                     <Text style={{
@@ -596,13 +635,13 @@ const Listed_POS = () => {
                                                     <Text style={{
                                                         textAlign: 'center',
                                                         padding: 10
-                                                    }}>{data.unit_price}</Text>
+                                                    }}>{data.price}</Text>
                                                 </View>
                                                 <View style={{ width: 120, borderWidth: 1, borderColor: '#C1C0B9', justifyContent: 'center', }}>
                                                     <Text style={{
                                                         textAlign: 'center',
                                                         padding: 10
-                                                    }}>{data.price}</Text>
+                                                    }}>{data.price * data.quantity}</Text>
                                                 </View>
                                             </>
                                         </View>
@@ -1055,9 +1094,10 @@ const Listed_POS = () => {
 
                             <SelectDropdown
 
-                                data={countries}
+                                data={hinhthuctt}
                                 onSelect={(selectedItem, index) => {
                                     console.log(selectedItem, index)
+                                    handerHTTT(selectedItem)
                                 }}
                                 defaultButtonText="--Chọn--"
                                 buttonText={selectedOption ? selectedOption : '--Chọn--'}
@@ -1285,19 +1325,19 @@ const Listed_POS = () => {
                                                 <Text style={{
                                                     textAlign: 'center',
                                                     padding: 10
-                                                }}>{data.start_order_at}</Text>
+                                                }}>{data.order_histories[0].start_order_at}</Text>
                                             </View>
                                             <View style={{ width: 120, borderWidth: 1, borderColor: '#C1C0B9', justifyContent: 'center', }}>
                                                 <Text style={{
                                                     textAlign: 'center',
                                                     padding: 10
-                                                }}>{data.customer_id}</Text>
+                                                }}>{data.orders[0].contactsId}</Text>
                                             </View>
                                             <View style={{ width: 120, borderWidth: 1, borderColor: '#C1C0B9', justifyContent: 'center', }}>
                                                 <Text style={{
                                                     textAlign: 'center',
                                                     padding: 10
-                                                }}> HĐS: {data.customer_id}</Text>
+                                                }}> HĐS: {data.orders[0].id}</Text>
                                             </View>
                                             <View style={{ width: 120, borderWidth: 1, borderColor: '#C1C0B9', justifyContent: 'center', }}>
                                                 <Text style={{
@@ -1309,43 +1349,56 @@ const Listed_POS = () => {
                                                 <Text style={{
                                                     textAlign: 'center',
                                                     padding: 10
-                                                }}>{data.nvkd_id}</Text>
+                                                }}>{data.order_histories[0].nvkt_id}</Text>
                                             </View>
                                             <View style={{ width: 120, borderWidth: 1, borderColor: '#C1C0B9', justifyContent: 'center', }}>
                                                 <Text style={{
                                                     textAlign: 'center',
                                                     padding: 10
-                                                }}>{data.status}</Text>
+                                                }}>{data.order_histories[0].status}</Text>
                                             </View>
                                             <View style={{ width: 120, borderWidth: 1, borderColor: '#C1C0B9', justifyContent: 'center', }}>
                                                 <Text style={{
                                                     textAlign: 'center',
                                                     padding: 10
-                                                }}>{data.HinhThucTT}</Text>
+                                                }}>{data.transaction_payments[0].method}</Text>
                                             </View>
                                             <View style={{ width: 120, borderWidth: 1, borderColor: '#C1C0B9', justifyContent: 'center', }}>
                                                 <Text style={{
                                                     textAlign: 'center',
                                                     padding: 10
-                                                }}>{data.TongCong}</Text>
+                                                }}>{data.transactions[0].final_total}.000</Text>
                                             </View>
                                             <View style={{ width: 120, borderWidth: 1, borderColor: '#C1C0B9', justifyContent: 'center', }}>
                                                 <Text style={{
                                                     textAlign: 'center',
                                                     padding: 10
-                                                }}>{data.TrinhTrangTT}</Text>
+                                                }}>{data.transactions[0].final_total}.000</Text>
+
                                             </View>
                                             <View style={{ width: 120, borderWidth: 1, borderColor: '#C1C0B9', justifyContent: 'center', }}>
                                                 <Text style={{
                                                     textAlign: 'center',
                                                     padding: 10
-                                                }}>{data.ConNo}</Text>
+                                                }}>{data.transactions[0].final_total - data.transactions[0].final_total}</Text>
                                             </View>
                                             <View style={{ width: 120, borderWidth: 1, borderColor: '#C1C0B9', justifyContent: 'center', }}>
                                                 <Text style={{
                                                     textAlign: 'center',
                                                     padding: 10
-                                                }}>{data.nvkd_id}</Text>
+                                                }}>{data.transaction_payments[0].method == "cash" ? <>
+                                                    <Text>
+                                                        Nhân Viên Kĩ Thuật: {data.transactions[0].final_total}
+                                                    </Text>
+                                                </>
+                                                    :
+                                                    <>
+                                                        <Text>
+                                                            Khách Hàng: {data.transactions[0].final_total}
+                                                        </Text>
+                                                    </>
+                                                    }
+                                                </Text>
                                             </View>
                                             <View style={{ width: 120, borderWidth: 1, borderColor: '#C1C0B9', justifyContent: 'center', }}>
                                                 <TouchableOpacity onPress={() => handerModal(index)}>

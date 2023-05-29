@@ -138,7 +138,7 @@ export default function ThanhToan({ route, navigation }) {
                     method: 'POST',
                     headers: {
                         "Content-Type": "application/json",
-                        "x-api-key": "39081e3d21dc8f2c3fddaff1ae20142b0ae3a0c1849da2a3bd753ddf8db599d983b28c681972c5ecc8990f164527f5d4a0a1820240de22e80b0f61dfbdedde7d",
+                        "x-api-key": "d420e946ae282dfadafede6b060ae66e3ffd2a9cddfe3dc9b4cd070f98ad4985aeab65e2751677f21f91f34c2a22a1f95bf0b330fd2eb0dfb2c1fb53a7c8d97a",
                         "authorization": cleanedJwtString,
                         "x-client-id": id
                     },
@@ -157,23 +157,23 @@ export default function ThanhToan({ route, navigation }) {
                             method: 'POST',
                             headers: {
                                 "Content-Type": "application/json",
-                                "x-api-key": "39081e3d21dc8f2c3fddaff1ae20142b0ae3a0c1849da2a3bd753ddf8db599d983b28c681972c5ecc8990f164527f5d4a0a1820240de22e80b0f61dfbdedde7d",
+                                "x-api-key": "d420e946ae282dfadafede6b060ae66e3ffd2a9cddfe3dc9b4cd070f98ad4985aeab65e2751677f21f91f34c2a22a1f95bf0b330fd2eb0dfb2c1fb53a7c8d97a",
                                 "authorization": cleanedJwtString,
                                 "x-client-id": id
                             }
                         };
 
-                        // Lấy dữ liệu của khách hàng
+                        // Lấy dữ liệu của sản phẩm đã mua
                         fetch(URL + '/transactions_sell_line/get/' + data.metadata[0].id, requestOptions1)
                             .then((data) => {
                                 return data.json()
                             })
                             .then(data => {
-                                console.log(data)
-                                if (data.metadata != []) {
+                                if (data.metadata.length != 0) {
                                     const products = data.metadata && data.metadata.map(item => {
                                         const product = item.product;
                                         product.quantity = item.quantity;
+                                        product.product_id = item.product_id
 
                                         return product;
                                     })
@@ -192,44 +192,84 @@ export default function ThanhToan({ route, navigation }) {
         }, [id_tran])
     );
 
+    // useFocusEffect(
+    //     React.useCallback(() => {
 
-    // useEffect(() => {
-    //     getId(id_tran)
-    // })
+    //         const GetApiorders = async () => {
 
+    //             const accessToken = await getToken()
+    //             const id = await getID()
+    //             const cleanedJwtString = accessToken.replace(/^"|"$/g, '');
+
+    //             const requestOptions = {
+    //                 method: 'POST',
+    //                 headers: {
+    //                     "Content-Type": "application/json",
+    //                     "x-api-key": "d420e946ae282dfadafede6b060ae66e3ffd2a9cddfe3dc9b4cd070f98ad4985aeab65e2751677f21f91f34c2a22a1f95bf0b330fd2eb0dfb2c1fb53a7c8d97a",
+    //                     "authorization": cleanedJwtString,
+    //                     "x-client-id": id
+    //                 }
+    //             };
+
+
+    //             // Lấy dữ liệu của khách hàng
+    //             fetch(URL + '/product/get', requestOptions)
+    //                 .then((data) => {
+    //                     return data.json()
+    //                 })
+    //                 .then(data => {
+    //                     // console.log(data.metadata)
+    //                     setProduct(data.metadata)
+    //                 })
+    //         }
+    //         GetApiorders()
+    //     }, [])
+    // );
+
+
+    //Lấy hàng tồn kho cửa từng nhân viên
+    //khai báo tồn kho kết hợp với tên products
+    const [inventoryproducts, setInventoryProduct] = useState([])
     useFocusEffect(
         React.useCallback(() => {
-
-            const GetApiorders = async () => {
-
+            const getProductVariation = async (id_tran) => {
                 const accessToken = await getToken()
                 const id = await getID()
+
                 const cleanedJwtString = accessToken.replace(/^"|"$/g, '');
 
                 const requestOptions = {
                     method: 'POST',
                     headers: {
                         "Content-Type": "application/json",
-                        "x-api-key": "39081e3d21dc8f2c3fddaff1ae20142b0ae3a0c1849da2a3bd753ddf8db599d983b28c681972c5ecc8990f164527f5d4a0a1820240de22e80b0f61dfbdedde7d",
+                        "x-api-key": "d420e946ae282dfadafede6b060ae66e3ffd2a9cddfe3dc9b4cd070f98ad4985aeab65e2751677f21f91f34c2a22a1f95bf0b330fd2eb0dfb2c1fb53a7c8d97a",
                         "authorization": cleanedJwtString,
                         "x-client-id": id
-                    }
+                    },
                 };
 
-
                 // Lấy dữ liệu của khách hàng
-                fetch(URL + '/product/get', requestOptions)
+                fetch(URL + '/variation_location_details/get/' + id, requestOptions)
+                    .then((data) => data.json())
                     .then((data) => {
-                        return data.json()
-                    })
-                    .then(data => {
-                        // console.log(data.message)
-                        setProduct(data.metadata)
+
+                        // Create a map to store the quantity available for each product ID
+                        data.metadata.forEach(item => {
+                            item.name = item.products.name;
+                            delete item.products;
+                        });
+
+                        // Print the updated response
+                        setInventoryProduct(data.metadata);
                     })
             }
-            GetApiorders()
+            getProductVariation()
         }, [])
     );
+
+    // useEffect(() => {
+    //     getId(id_tran)
+    // })
 
 
     //Xử lý chọn hàng 
@@ -244,7 +284,7 @@ export default function ThanhToan({ route, navigation }) {
             method: 'POST',
             headers: {
                 "Content-Type": "application/json",
-                "x-api-key": "39081e3d21dc8f2c3fddaff1ae20142b0ae3a0c1849da2a3bd753ddf8db599d983b28c681972c5ecc8990f164527f5d4a0a1820240de22e80b0f61dfbdedde7d",
+                "x-api-key": "d420e946ae282dfadafede6b060ae66e3ffd2a9cddfe3dc9b4cd070f98ad4985aeab65e2751677f21f91f34c2a22a1f95bf0b330fd2eb0dfb2c1fb53a7c8d97a",
                 "authorization": cleanedJwtString,
                 "x-client-id": id
             },
@@ -269,7 +309,7 @@ export default function ThanhToan({ route, navigation }) {
                     method: 'POST',
                     headers: {
                         "Content-Type": "application/json",
-                        "x-api-key": "39081e3d21dc8f2c3fddaff1ae20142b0ae3a0c1849da2a3bd753ddf8db599d983b28c681972c5ecc8990f164527f5d4a0a1820240de22e80b0f61dfbdedde7d",
+                        "x-api-key": "d420e946ae282dfadafede6b060ae66e3ffd2a9cddfe3dc9b4cd070f98ad4985aeab65e2751677f21f91f34c2a22a1f95bf0b330fd2eb0dfb2c1fb53a7c8d97a",
                         "authorization": cleanedJwtString,
                         "x-client-id": id
                     }
@@ -285,6 +325,8 @@ export default function ThanhToan({ route, navigation }) {
                         const products = data.metadata && data.metadata.map(item => {
                             const product = item.product;
                             product.quantity = item.quantity;
+                            product.product_id = item.product_id
+
                             return product;
                         });
 
@@ -300,7 +342,7 @@ export default function ThanhToan({ route, navigation }) {
 
     //Tính tổng tiền
 
-    const [total, setTotal] = useState()
+    const [total, setTotal] = useState(0)
 
     useEffect(() => {
         let totals = 0;
@@ -310,40 +352,116 @@ export default function ThanhToan({ route, navigation }) {
         setTotal(totals)
     }, [cart])
 
+    //xử lý khi thanh toán thì trừ sản phẩm trong tồn kho
+    // console.log({ cart })
 
-    const handerThanhToan = async () => {
+
+    const calculateRemainingQuantity = async () => {
+
+        const id_user = await getID()
+
+        // Create a map of product_id to quantity in the cart
+        const cartQuantities = {};
+        cart.forEach(item => {
+            const { product_id, quantity } = item;
+            cartQuantities[product_id] = (cartQuantities[product_id] || 0) + quantity;
+        });
+
+        // Calculate the remaining quantity for each inventory product
+        const updatedInventoryProducts = inventoryproducts.map(product => {
+            const { id, products_id, qty_available } = product;
+            const cartQuantity = cartQuantities[products_id] || 0;
+            const remainingQuantity = parseInt(qty_available) - cartQuantity;
+
+            // Return the updated product object with remaining quantity
+            return { id, product_id: products_id, qty_available: remainingQuantity.toString(), user_id: id_user };
+        });
+
+        // Return the updated inventory products
+        console.log(updatedInventoryProducts)
+        return updatedInventoryProducts;
+    }
+
+    // Call the function to calculate the remaining quantity
+
+    const updatedInventory = async () => {
+        const Inventory = await calculateRemainingQuantity();
+
         const accessToken = await getToken()
-        const id = await getID()
-
-
+        const id_user = await getID()
         const cleanedJwtString = accessToken.replace(/^"|"$/g, '');
 
         const requestOptions1 = {
             method: 'POST',
             headers: {
                 "Content-Type": "application/json",
-                "x-api-key": "39081e3d21dc8f2c3fddaff1ae20142b0ae3a0c1849da2a3bd753ddf8db599d983b28c681972c5ecc8990f164527f5d4a0a1820240de22e80b0f61dfbdedde7d",
+                "x-api-key": "d420e946ae282dfadafede6b060ae66e3ffd2a9cddfe3dc9b4cd070f98ad4985aeab65e2751677f21f91f34c2a22a1f95bf0b330fd2eb0dfb2c1fb53a7c8d97a",
+                "authorization": cleanedJwtString,
+                "x-client-id": id_user
+            },
+            body: JSON.stringify(
+                {
+                    Inventory: Inventory
+                }
+            )
+
+        };
+
+        fetch(URL + '/variation_location_details/update', requestOptions1)
+    }
+
+
+
+    //Lấy những đơn hàng trong chỉ số cá nhân
+    //Lấy Api của chỉ số cá nhân
+
+    const [acceptdailyresultdetails, setAcceptdailyresultdetails] = useState([])
+    const [donVs, setDonVs] = useState()
+    const [donPs, setDonPs] = useState()
+    const [doanhso, setDoanhSo] = useState()
+
+
+
+    const GetDailyresult = async () => {
+
+        const accessToken = await getToken()
+        const id = await getID()
+        const cleanedJwtString = accessToken.replace(/^"|"$/g, '');
+
+        const requestOptions = {
+            method: 'POST',
+            headers: {
+                "Content-Type": "application/json",
+                "x-api-key": "d420e946ae282dfadafede6b060ae66e3ffd2a9cddfe3dc9b4cd070f98ad4985aeab65e2751677f21f91f34c2a22a1f95bf0b330fd2eb0dfb2c1fb53a7c8d97a",
                 "authorization": cleanedJwtString,
                 "x-client-id": id
-            },
-
+            }
         };
 
 
         // Lấy dữ liệu của khách hàng
-        fetch(URL + '/orders/updateaction/' + id_tran, requestOptions1)
+        fetch(URL + '/daily_results/get/' + id, requestOptions)
             .then((data) => {
-                fetch(URL + '/transactions/update/' + id_tran, requestOptions1)
-                navigation.navigate('Đơn đang thực hiện')
+                return data.json()
             })
-            .then(() => {
-                fetch(URL + '/orderhistory/update/' + id_tran, requestOptions1)
+            .then(data => {
+                setDonVs(data.metadata[0].don_vs)
+                setDonPs(data.metadata[0].don_ps)
+                setDoanhSo(data.metadata[0].doanh_so)
 
             })
-
     }
 
+    useEffect(() => {
+        GetDailyresult()
+    }, [])
 
+
+
+
+    // console.log(acceptdailyresultdetails)
+
+    //tĂNG số lượng sản phẩm
     const Update_Cong = async (productId, quantity) => {
 
 
@@ -357,7 +475,7 @@ export default function ThanhToan({ route, navigation }) {
             method: 'POST',
             headers: {
                 "Content-Type": "application/json",
-                "x-api-key": "39081e3d21dc8f2c3fddaff1ae20142b0ae3a0c1849da2a3bd753ddf8db599d983b28c681972c5ecc8990f164527f5d4a0a1820240de22e80b0f61dfbdedde7d",
+                "x-api-key": "d420e946ae282dfadafede6b060ae66e3ffd2a9cddfe3dc9b4cd070f98ad4985aeab65e2751677f21f91f34c2a22a1f95bf0b330fd2eb0dfb2c1fb53a7c8d97a",
                 "authorization": cleanedJwtString,
                 "x-client-id": id
             },
@@ -381,7 +499,7 @@ export default function ThanhToan({ route, navigation }) {
                     method: 'POST',
                     headers: {
                         "Content-Type": "application/json",
-                        "x-api-key": "39081e3d21dc8f2c3fddaff1ae20142b0ae3a0c1849da2a3bd753ddf8db599d983b28c681972c5ecc8990f164527f5d4a0a1820240de22e80b0f61dfbdedde7d",
+                        "x-api-key": "d420e946ae282dfadafede6b060ae66e3ffd2a9cddfe3dc9b4cd070f98ad4985aeab65e2751677f21f91f34c2a22a1f95bf0b330fd2eb0dfb2c1fb53a7c8d97a",
                         "authorization": cleanedJwtString,
                         "x-client-id": id
                     }
@@ -394,7 +512,7 @@ export default function ThanhToan({ route, navigation }) {
                     })
                     .then(data => {
 
-                        // console.log(data)
+                        // console.log(data.metadata)
                         // const quantity = data.metadata.map(item => item.quantity);
                         // const products = data.metadata.map(item => item.product);
                         // const test = products.concat(quantity)
@@ -407,30 +525,28 @@ export default function ThanhToan({ route, navigation }) {
                         const products = data.metadata && data.metadata.map(item => {
                             const product = item.product;
                             product.quantity = item.quantity;
+                            product.product_id = item.product_id
                             return product;
                         });
 
                         setCart(products)
 
                     })
-
             })
     }
 
-    const Update_Tru = async (productId, quantity) => {
 
+    const Update_Tru = async (productId, quantity) => {
 
         const accessToken = await getToken()
         const id = await getID()
-
-
         const cleanedJwtString = accessToken.replace(/^"|"$/g, '');
 
         const requestOptions = {
             method: 'POST',
             headers: {
                 "Content-Type": "application/json",
-                "x-api-key": "39081e3d21dc8f2c3fddaff1ae20142b0ae3a0c1849da2a3bd753ddf8db599d983b28c681972c5ecc8990f164527f5d4a0a1820240de22e80b0f61dfbdedde7d",
+                "x-api-key": "d420e946ae282dfadafede6b060ae66e3ffd2a9cddfe3dc9b4cd070f98ad4985aeab65e2751677f21f91f34c2a22a1f95bf0b330fd2eb0dfb2c1fb53a7c8d97a",
                 "authorization": cleanedJwtString,
                 "x-client-id": id
             },
@@ -454,7 +570,7 @@ export default function ThanhToan({ route, navigation }) {
                     method: 'POST',
                     headers: {
                         "Content-Type": "application/json",
-                        "x-api-key": "39081e3d21dc8f2c3fddaff1ae20142b0ae3a0c1849da2a3bd753ddf8db599d983b28c681972c5ecc8990f164527f5d4a0a1820240de22e80b0f61dfbdedde7d",
+                        "x-api-key": "d420e946ae282dfadafede6b060ae66e3ffd2a9cddfe3dc9b4cd070f98ad4985aeab65e2751677f21f91f34c2a22a1f95bf0b330fd2eb0dfb2c1fb53a7c8d97a",
                         "authorization": cleanedJwtString,
                         "x-client-id": id
                     }
@@ -480,6 +596,8 @@ export default function ThanhToan({ route, navigation }) {
                         const products = data.metadata && data.metadata.map(item => {
                             const product = item.product;
                             product.quantity = item.quantity;
+                            product.product_id = item.product_id
+
                             return product;
                         });
 
@@ -502,7 +620,7 @@ export default function ThanhToan({ route, navigation }) {
             method: 'POST',
             headers: {
                 "Content-Type": "application/json",
-                "x-api-key": "39081e3d21dc8f2c3fddaff1ae20142b0ae3a0c1849da2a3bd753ddf8db599d983b28c681972c5ecc8990f164527f5d4a0a1820240de22e80b0f61dfbdedde7d",
+                "x-api-key": "d420e946ae282dfadafede6b060ae66e3ffd2a9cddfe3dc9b4cd070f98ad4985aeab65e2751677f21f91f34c2a22a1f95bf0b330fd2eb0dfb2c1fb53a7c8d97a",
                 "authorization": cleanedJwtString,
                 "x-client-id": id
             },
@@ -526,6 +644,8 @@ export default function ThanhToan({ route, navigation }) {
                         const products = data.metadata && data.metadata.map(item => {
                             const product = item.product;
                             product.quantity = item.quantity;
+                            product.product_id = item.product_id
+
                             return product;
                         });
 
@@ -533,6 +653,138 @@ export default function ThanhToan({ route, navigation }) {
 
                     })
                     .catch(err => console.log(err))
+            })
+
+    }
+
+    //update Đơn Thêm
+    const updateDonVe = async () => {
+        const accessToken = await getToken()
+        const id = await getID()
+        const cleanedJwtString = accessToken.replace(/^"|"$/g, '');
+
+        const requestOptions1 = {
+            method: 'POST',
+            headers: {
+                "Content-Type": "application/json",
+                "x-api-key": "d420e946ae282dfadafede6b060ae66e3ffd2a9cddfe3dc9b4cd070f98ad4985aeab65e2751677f21f91f34c2a22a1f95bf0b330fd2eb0dfb2c1fb53a7c8d97a",
+                "authorization": cleanedJwtString,
+                "x-client-id": id
+            },
+            body: JSON.stringify({
+                id: id,
+                donVs: donVs
+            })
+        };
+
+        // Lấy dữ liệu của khách hàng
+        fetch(URL + '/daily_results/update/donvesinh/', requestOptions1)
+    }
+
+    //update Đơn Phát Sinh
+    const updateDonPhatSinh = async () => {
+        const accessToken = await getToken()
+        const id = await getID()
+        const cleanedJwtString = accessToken.replace(/^"|"$/g, '');
+
+        const requestOptions1 = {
+            method: 'POST',
+            headers: {
+                "Content-Type": "application/json",
+                "x-api-key": "d420e946ae282dfadafede6b060ae66e3ffd2a9cddfe3dc9b4cd070f98ad4985aeab65e2751677f21f91f34c2a22a1f95bf0b330fd2eb0dfb2c1fb53a7c8d97a",
+                "authorization": cleanedJwtString,
+                "x-client-id": id
+            },
+            body: JSON.stringify({
+                id: id,
+                donPs: donPs,
+                doanhso: doanhso + total
+            })
+        };
+
+        // Lấy dữ liệu của khách hàng
+        fetch(URL + '/daily_results/update/donphatsinh/', requestOptions1)
+    }
+
+    //Xử lý transation_payload
+    const transaction_payload = async () => {
+        const accessToken = await getToken()
+        const id = await getID()
+        const cleanedJwtString = accessToken.replace(/^"|"$/g, '');
+
+        const requestOptions = {
+            method: 'POST',
+            headers: {
+                "Content-Type": "application/json",
+                "x-api-key": "d420e946ae282dfadafede6b060ae66e3ffd2a9cddfe3dc9b4cd070f98ad4985aeab65e2751677f21f91f34c2a22a1f95bf0b330fd2eb0dfb2c1fb53a7c8d97a",
+                "authorization": cleanedJwtString,
+                "x-client-id": id
+            },
+            body: JSON.stringify({
+                transactionId: id_tran,
+                method: "cash",
+                contactsId: id_tran
+            })
+
+        };
+        fetch(URL + '/transaction_payments/create/', requestOptions)
+
+    }
+
+    //xử lý thonh toán 
+    const handerThanhToan = async () => {
+
+        const accessToken = await getToken()
+        const id = await getID()
+        const cleanedJwtString = accessToken.replace(/^"|"$/g, '');
+
+        const requestOptions1 = {
+            method: 'POST',
+            headers: {
+                "Content-Type": "application/json",
+                "x-api-key": "d420e946ae282dfadafede6b060ae66e3ffd2a9cddfe3dc9b4cd070f98ad4985aeab65e2751677f21f91f34c2a22a1f95bf0b330fd2eb0dfb2c1fb53a7c8d97a",
+                "authorization": cleanedJwtString,
+                "x-client-id": id
+            },
+
+        };
+
+        const requestOptions2 = {
+            method: 'POST',
+            headers: {
+                "Content-Type": "application/json",
+                "x-api-key": "d420e946ae282dfadafede6b060ae66e3ffd2a9cddfe3dc9b4cd070f98ad4985aeab65e2751677f21f91f34c2a22a1f95bf0b330fd2eb0dfb2c1fb53a7c8d97a",
+                "authorization": cleanedJwtString,
+                "x-client-id": id
+            },
+            body: JSON.stringify({
+                id: id_tran,
+                final_total: total
+            })
+
+        };
+
+        // Lấy dữ liệu của khách hàng
+        fetch(URL + '/orders/updateaction/' + id_tran, requestOptions1)
+            .then((data) => {
+                fetch(URL + '/transactions/update', requestOptions2)
+                transaction_payload()
+            })
+            .then(() => {
+                fetch(URL + '/orderhistory/update/' + id_tran, requestOptions1)
+
+                updatedInventory()
+
+                if (total == 0) {
+                    updateDonVe()
+                }
+                else {
+                    updateDonPhatSinh()
+                }
+
+                navigation.navigate('Đơn đang thực hiện')
+
+
             })
 
     }
@@ -593,8 +845,62 @@ export default function ThanhToan({ route, navigation }) {
                 </ScrollView>
 
                 <View>
+                    <View
+                        style={{
+                            flexDirection: 'row',
+                            justifyContent: 'space-around',
+                            // borderWidth: 0.4,
+                            // borderColor: 'gray',
+                            borderBottomColor: 'gray',
+                            borderBottomWidth: 1,
+                            paddingVertical: 6
+
+                        }}>
+                        <View style={{
+                            width: '40%',
+                            justifyContent: 'center',
+                            alignItems: 'center'
+                        }}>
+                            <Text style={{
+                                fontSize: 16,
+                                lineHeight: 30,
+                                textAlign: 'center',
+
+                            }}>
+                                Tên Sản Phẩm
+                            </Text>
+
+
+                        </View>
+                        <View style={{
+                            width: '40%',
+                            justifyContent: 'center',
+                            alignItems: 'center'
+                        }}>
+                            <Text style={{
+                                fontSize: 16,
+                                lineHeight: 30,
+                                textAlign: 'center',
+
+                            }}>
+                                Số Lượng Tồn
+                            </Text>
+
+                        </View>
+
+                        <View>
+                            <Text style={{
+                                padding: 10,
+                                // color: 'white'
+                            }}>
+                                Trạng Thái
+                            </Text>
+                        </View>
+
+                    </View>
                     <View>
-                        {products && products.map((product, index) => (
+                        {/* Gọi api trong tồn kho và sản phẩm */}
+                        {inventoryproducts && inventoryproducts.map((product, index) => (
                             <View
                                 key={product.id}
                                 style={{
@@ -634,29 +940,47 @@ export default function ThanhToan({ route, navigation }) {
                                         textAlign: 'center',
 
                                     }}>
-                                        {product.alert_quantity}
+                                        {product.qty_available}
                                     </Text>
 
                                 </View>
 
                                 <View>
-                                    <TouchableOpacity style={{
-                                        backgroundColor: 'green',
-                                        justifyContent: 'center',
-                                        alignItems: 'center',
+                                    {product.qty_available > 0 ?
+                                        <TouchableOpacity style={{
+                                            backgroundColor: 'green',
+                                            justifyContent: 'center',
+                                            alignItems: 'center',
 
-                                    }}
-                                        title="A"
-                                        onPress={() => handerChon(product.id, product)}
-                                    >
-                                        <Text style={{
-                                            padding: 10,
-                                            color: 'white'
-                                        }}>
-                                            Chọn
-                                        </Text>
-                                    </TouchableOpacity>
+                                        }}
+                                            title="A"
+                                            onPress={() => handerChon(product.id, product)}
+                                        >
+                                            <Text style={{
+                                                padding: 10,
+                                                color: 'white'
+                                            }}>
+                                                Chọn
+                                            </Text>
+                                        </TouchableOpacity>
 
+                                        :
+                                        <TouchableOpacity style={{
+                                            backgroundColor: 'red',
+                                            justifyContent: 'center',
+                                            alignItems: 'center',
+
+                                        }}
+                                            title="A"
+                                        >
+                                            <Text style={{
+                                                padding: 10,
+                                                color: 'white'
+                                            }}>
+                                                Hết Hàng
+                                            </Text>
+                                        </TouchableOpacity>
+                                    }
                                 </View>
 
                             </View>

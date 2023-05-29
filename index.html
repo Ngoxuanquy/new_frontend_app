@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<style>
+    #a2 {
+        display: none;
+    }
+</style>
+
+<body>
+    <div>
+        <button onclick="handerA1()">
+            a1
+        </button>
+        <button onclick="handerA2()">
+            a2
+        </button>
+        <div id="a1">
+            quy
+        </div>
+        <div id="a2">
+            Lorem ipsum dolor sit amet consectetur adipisicing elit. Dolor enim maxime quae voluptate! Sapiente
+            exercitationem non molestiae incidunt dignissimos provident veritatis reprehenderit fugit consectetur optio,
+            suscipit laudantium asperiores aperiam beatae!
+        </div>
+    </div>
+
+
+</body>
+<script>
+    const handerA2 = () => {
+        const a2 = document.getElementById('a2')
+        a2.style.display = 'block'
+
+        const a1 = document.getElementById('a1')
+        a1.style.display = 'none'
+    }
+
+    const handerA1 = () => {
+        const a2 = document.getElementById('a2')
+        a2.style.display = 'none'
+
+        const a1 = document.getElementById('a1')
+        a1.style.display = 'block'
+    }
+</script>
+
+</html>

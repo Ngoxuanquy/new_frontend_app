@@ -1,4 +1,4 @@
-import { View, Text, TouchableOpacity, SafeAreaView } from 'react-native'
+import { View, Text, TouchableOpacity, SafeAreaView, ScrollView } from 'react-native'
 import React, { useState } from 'react'
 import { ButtonGroup } from '@rneui/themed'
 import Header from '../../../Components/Header/Header'

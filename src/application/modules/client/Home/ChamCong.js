@@ -49,6 +49,15 @@ const ChamCong = ({ navigation }) => {
         }
     };
 
+
+    //khai báo chám công
+    const [sangvao, setSangVao] = useState()
+    const [sangra, setSangRa] = useState()
+    const [chieuvao, setChieuvao] = useState()
+    const [chieura, setChieuRa] = useState()
+    const [chamCong, setChamCong] = useState([]);
+    const [create, setCreate] = useState('')
+
     const getApisChamCong = async (id1) => {
 
 
@@ -61,7 +70,7 @@ const ChamCong = ({ navigation }) => {
             method: 'POST',
             headers: {
                 "Content-Type": "application/json",
-                "x-api-key": "39081e3d21dc8f2c3fddaff1ae20142b0ae3a0c1849da2a3bd753ddf8db599d983b28c681972c5ecc8990f164527f5d4a0a1820240de22e80b0f61dfbdedde7d",
+                "x-api-key": "d420e946ae282dfadafede6b060ae66e3ffd2a9cddfe3dc9b4cd070f98ad4985aeab65e2751677f21f91f34c2a22a1f95bf0b330fd2eb0dfb2c1fb53a7c8d97a",
                 "authorization": cleanedJwtString,
                 "x-client-id": id
             },
@@ -75,6 +84,7 @@ const ChamCong = ({ navigation }) => {
             })
             .then(data => {
 
+                console.log(data)
                 setDate(data.metadata)
 
                 data.metadata.map(re => {
@@ -84,137 +94,252 @@ const ChamCong = ({ navigation }) => {
                     const month = (date.getMonth() + 1).toString().padStart(2, '0');
                     const day = date.getDate().toString().padStart(2, '0');
                     const formattedDate = `${year}/${month}/${day}`;
-
+                    setSangVao(re.vao_sang)
+                    setSangRa(re.ra_sang)
+                    setChieuvao(re.vao_chieu)
+                    setChieuRa(re.ra_chieu)
+                    setCreate(re.created_at)
                     setCheck(formattedDate)
                 })
-
             })
-
     }
 
     useEffect(() => {
         getApisChamCong()
-    }, [])
+    }, [sangra])
 
+    //Lấy Api của chỉ số cá nhân
 
-    const handleBarCodeScanned = async ({ type, data }) => {
-        setScannes(true)
-        setText(data)
+    const [SoCong, setSoCong] = useState([])
+
+    const GetApiChamCong = async () => {
 
         const accessToken = await getToken()
         const id = await getID()
+        const cleanedJwtString = accessToken.replace(/^"|"$/g, '');
+
+        const requestOptions = {
+            method: 'POST',
+            headers: {
+                "Content-Type": "application/json",
+                "x-api-key": "d420e946ae282dfadafede6b060ae66e3ffd2a9cddfe3dc9b4cd070f98ad4985aeab65e2751677f21f91f34c2a22a1f95bf0b330fd2eb0dfb2c1fb53a7c8d97a",
+                "authorization": cleanedJwtString,
+                "x-client-id": id
+            }
+        };
+
+
+        // Lấy dữ liệu của khách hàng
+        fetch(URL + '/daily_results/get/' + id, requestOptions)
+            .then((data) => {
+                return data.json()
+            })
+            .then(data => {
+                setSoCong(data.metadata[0].so_cong)
+
+            })
+    }
+
+    useEffect(() => {
+        GetApiChamCong()
+    }, [])
+
+    const updateChamCong = async () => {
+
+        const accessToken = await getToken()
+        const id = await getID()
+        const cleanedJwtString = accessToken.replace(/^"|"$/g, '');
+
+        const requestOptions = {
+            method: 'POST',
+            headers: {
+                "Content-Type": "application/json",
+                "x-api-key": "d420e946ae282dfadafede6b060ae66e3ffd2a9cddfe3dc9b4cd070f98ad4985aeab65e2751677f21f91f34c2a22a1f95bf0b330fd2eb0dfb2c1fb53a7c8d97a",
+                "authorization": cleanedJwtString,
+                "x-client-id": id
+            },
+            body: JSON.stringify({
+                id: id,
+                SoCong: SoCong,
+            })
+        };
+
+        fetch(URL + '/daily_results/update/chamcong', requestOptions)
+    }
+
+    const handleBarCodeScanned = async ({ type, data }) => {
+        setScannes(true);
+        setText(data);
+
+        const accessToken = await getToken();
+        const id = await getID();
 
         const cleanedJwtString = accessToken.replace(/^"|"$/g, '');
-        const a = new Date()
-        var time = a.getHours() + ":" + a.getMinutes() + ":" + a.getSeconds();
 
-        console.log(a.getFullYear())
+        const date = new Date();
+        const hour = date.getHours();
+        const minute = date.getMinutes();
+        const second = date.getSeconds();
 
+        const time = hour + "/" + minute + "/" + second
 
-        if (check.slice(0, 4) == a.getFullYear() && check.slice(5, 7) == (a.getMonth() + 1) && check.slice(8, 10) == a.getDate()) {
-            // alert("Hôm Nay Đã Chấm Công!!!")
+        if (check === "") {
+            console.log('Chấm công vào buổi sáng');
+            await createSangVao(time, cleanedJwtString, id);
 
-            console.log('a3212')
+        } else if (check != "" && sangvao != null && sangra == null && chieuvao == null && chieura == null) {
+
+            console.log('Chấm công ra buổi sáng');
+            await createSangRa(time, cleanedJwtString, id);
+
+        } else if (check != "" && sangvao != null && sangra != null && chieuvao == null && chieura == null) {
+            console.log('Chấm công vào buổi chiều');
+            await createChieuVao(time, cleanedJwtString, id);
+
+        } else if (check != "" && sangvao != null && sangra != null && chieuvao != null && chieura == null) {
+            console.log('Chấm công ra buổi chiều');
+            await createChieuRa(time, cleanedJwtString, id);
         }
-        else {
+        else if (check != "" && sangvao != null && sangra != null && chieuvao != null && chieura != null) {
+            alert('Sao thế!! Hôm Nay đi làm chưa đủ ư ')
+            navigation.navigate('Home')
 
-            console.log('aaa')
+        }
+
+        // Các hàm để thực hiện chấm công
+        async function createSangVao(time, accessToken, id) {
             const requestOptions = {
                 method: 'POST',
                 headers: {
                     "Content-Type": "application/json",
-                    "x-api-key": "39081e3d21dc8f2c3fddaff1ae20142b0ae3a0c1849da2a3bd753ddf8db599d983b28c681972c5ecc8990f164527f5d4a0a1820240de22e80b0f61dfbdedde7d",
-                    "authorization": cleanedJwtString,
+                    "x-api-key": "d420e946ae282dfadafede6b060ae66e3ffd2a9cddfe3dc9b4cd070f98ad4985aeab65e2751677f21f91f34c2a22a1f95bf0b330fd2eb0dfb2c1fb53a7c8d97a",
+                    "authorization": accessToken,
                     "x-client-id": id
                 },
-
                 body: JSON.stringify({
                     id: id,
                     vao_sang: time,
                     business_id: 1
                 })
-
             };
 
             fetch(URL + '/chamcong/create/sangvao', requestOptions)
-                .then((data) => {
-                    return data.json()
-                })
+                .then(data => data.json())
                 .then(data => {
-                    alert('Chấm Công Vào Thành Công 1')
+                    // updateChamCong()
+                    navigation.navigate('Home')
+                    alert('Chấm công vào buổi sáng thành công');
 
                 })
-
+                .catch(error => {
+                    console.log(error);
+                    alert('Đã xảy ra lỗi khi chấm công vào buổi sáng');
+                });
         }
 
-
-
-        const createSangRa = async () => {
-            const accessToken = await getToken()
-            const id = await getID()
-
-            const cleanedJwtString = accessToken.replace(/^"|"$/g, '');
-            const a = new Date()
-            var time = a.getHours() + ":" + a.getMinutes() + ":" + a.getSeconds();
-
+        async function createSangRa(time, accessToken, id) {
             const requestOptions = {
                 method: 'POST',
                 headers: {
                     "Content-Type": "application/json",
-                    "x-api-key": "39081e3d21dc8f2c3fddaff1ae20142b0ae3a0c1849da2a3bd753ddf8db599d983b28c681972c5ecc8990f164527f5d4a0a1820240de22e80b0f61dfbdedde7d",
-                    "authorization": cleanedJwtString,
+                    "x-api-key": "d420e946ae282dfadafede6b060ae66e3ffd2a9cddfe3dc9b4cd070f98ad4985aeab65e2751677f21f91f34c2a22a1f95bf0b330fd2eb0dfb2c1fb53a7c8d97a",
+                    "authorization": accessToken,
                     "x-client-id": id
                 },
-
                 body: JSON.stringify({
                     id: id,
                     ra_sang: time,
-                    business_id: 1
+                    business_id: 1,
+                    create: create
                 })
-
             };
 
             fetch(URL + '/chamcong/create/sangra', requestOptions)
-                .then((data) => {
-                    return data.json()
-                })
+                .then(data => data.json())
                 .then(data => {
-                    alert('Chấm Công Vào Thành Công 1')
+                    updateChamCong()
+
+                    navigation.navigate('Home')
+
+                    alert('Chấm công ra buổi sáng thành công');
+                })
+                .catch(error => {
+                    console.log(error);
+                    alert('Đã xảy ra lỗi khi chấm công ra buổi sáng');
+                });
+        }
+        // ... Đoạn mã trước đó ...
+
+        async function createChieuVao(time, accessToken, id) {
+            const requestOptions = {
+                method: 'POST',
+                headers: {
+                    "Content-Type": "application/json",
+                    "x-api-key": "d420e946ae282dfadafede6b060ae66e3ffd2a9cddfe3dc9b4cd070f98ad4985aeab65e2751677f21f91f34c2a22a1f95bf0b330fd2eb0dfb2c1fb53a7c8d97a",
+                    "authorization": accessToken,
+                    "x-client-id": id
+                },
+                body: JSON.stringify({
+                    id: id,
+                    vao_chieu: time,
+                    business_id: 1,
+                    create: create
 
                 })
+            };
+
+            fetch(URL + '/chamcong/create/chieuvao', requestOptions)
+                .then(data => data.json())
+                .then(data => {
+                    // updateChamCong()
+
+                    navigation.navigate('Home')
+
+                    alert('Chấm công vào buổi chiều thành công');
+                })
+                .catch(error => {
+                    console.log(error);
+                    alert('Đã xảy ra lỗi khi chấm công vào buổi chiều');
+                });
         }
 
+        async function createChieuRa(time, accessToken, id) {
+            const requestOptions = {
+                method: 'POST',
+                headers: {
+                    "Content-Type": "application/json",
+                    "x-api-key": "d420e946ae282dfadafede6b060ae66e3ffd2a9cddfe3dc9b4cd070f98ad4985aeab65e2751677f21f91f34c2a22a1f95bf0b330fd2eb0dfb2c1fb53a7c8d97a",
+                    "authorization": accessToken,
+                    "x-client-id": id
+                },
+                body: JSON.stringify({
+                    id: id,
+                    ra_chieu: time,
+                    business_id: 1,
+                    create: create
 
-        date.map(da => {
-            if (da.ra_sang == "" && da.vao_sang != '') {
-                console.log('s')
-                createSangRa()
-            }
-        })
+                })
+            };
 
-        //     date.map(da => {
-        //         if (da.chieu_GioRa == "" && da.chieu_GioVao != '') {
-        //             fetch('http://192.168.0.113:4000' + '/api/chamcong/update/chieura/' + da.id, {
-        //                 method: 'POST',
-        //                 headers: { 'Content-Type': 'application/json' },
-        //             })
-        //                 .then(() => {
-
-        //                     fetch('http://192.168.0.113:4000' + '/api/chisocanhan/update/ngaycong/' + taikhoan, {
-        //                         method: 'POST',
-        //                         headers: { 'Content-Type': 'application/json' },
-        //                         body: JSON.stringify({
-        //                             chamcong: ngaycongs + 0.5
-        //                         })
-        //                     })
-
-        //                     alert('Chấm Công Ra Thành Công')
-        //                     navigation.replace('BottomTab')
-
-        //                 })
-        //     })
-
+            fetch(URL + '/chamcong/create/chieura', requestOptions)
+                .then(data => data.json())
+                .then(data => {
+                    updateChamCong()
+                    navigation.navigate('Home')
+                    alert('Chấm công ra buổi chiều thành công');
+                })
+                .catch(error => {
+                    console.log(error);
+                    alert('Đã xảy ra lỗi khi chấm công ra buổi chiều');
+                });
+        }
     }
+
+
+    useEffect(() => {
+        console.log(chamCong);
+    }, [chamCong]);
+
 
     if (hasPermission === null) {
         return (
