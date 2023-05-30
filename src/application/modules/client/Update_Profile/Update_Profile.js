@@ -6,7 +6,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const Update_Profile = () => {
 
-    const URL = 'http://192.168.1.101:3000/v1/api';
+    const URL = 'http://192.168.11.232:3000/v1/api';
 
     const [password, setPassword] = useState('');
     const [re_password, setRePassword] = useState('');

@@ -12,7 +12,7 @@ const ChamCong = ({ navigation }) => {
     const [date, setDate] = useState([])
     const [check, setCheck] = useState('')
 
-    const URL = 'http://192.168.1.101:3000/v1/api';
+    const URL = 'http://192.168.11.232:3000/v1/api';
 
 
     const [id, setId] = useState([]);
@@ -70,7 +70,7 @@ const ChamCong = ({ navigation }) => {
             method: 'POST',
             headers: {
                 "Content-Type": "application/json",
-                "x-api-key": "d420e946ae282dfadafede6b060ae66e3ffd2a9cddfe3dc9b4cd070f98ad4985aeab65e2751677f21f91f34c2a22a1f95bf0b330fd2eb0dfb2c1fb53a7c8d97a",
+                "x-api-key": "a3c3c520c39c95288cb353da5328ee89d87c7928d2f9013b66f66832ab3a2c90f849222cce7ff73b811041231c8cd0b2778ef206ac825571cabab7cd8fd99b3a",
                 "authorization": cleanedJwtString,
                 "x-client-id": id
             },
@@ -122,7 +122,7 @@ const ChamCong = ({ navigation }) => {
             method: 'POST',
             headers: {
                 "Content-Type": "application/json",
-                "x-api-key": "d420e946ae282dfadafede6b060ae66e3ffd2a9cddfe3dc9b4cd070f98ad4985aeab65e2751677f21f91f34c2a22a1f95bf0b330fd2eb0dfb2c1fb53a7c8d97a",
+                "x-api-key": "a3c3c520c39c95288cb353da5328ee89d87c7928d2f9013b66f66832ab3a2c90f849222cce7ff73b811041231c8cd0b2778ef206ac825571cabab7cd8fd99b3a",
                 "authorization": cleanedJwtString,
                 "x-client-id": id
             }
@@ -154,7 +154,7 @@ const ChamCong = ({ navigation }) => {
             method: 'POST',
             headers: {
                 "Content-Type": "application/json",
-                "x-api-key": "d420e946ae282dfadafede6b060ae66e3ffd2a9cddfe3dc9b4cd070f98ad4985aeab65e2751677f21f91f34c2a22a1f95bf0b330fd2eb0dfb2c1fb53a7c8d97a",
+                "x-api-key": "a3c3c520c39c95288cb353da5328ee89d87c7928d2f9013b66f66832ab3a2c90f849222cce7ff73b811041231c8cd0b2778ef206ac825571cabab7cd8fd99b3a",
                 "authorization": cleanedJwtString,
                 "x-client-id": id
             },
@@ -212,7 +212,7 @@ const ChamCong = ({ navigation }) => {
                 method: 'POST',
                 headers: {
                     "Content-Type": "application/json",
-                    "x-api-key": "d420e946ae282dfadafede6b060ae66e3ffd2a9cddfe3dc9b4cd070f98ad4985aeab65e2751677f21f91f34c2a22a1f95bf0b330fd2eb0dfb2c1fb53a7c8d97a",
+                    "x-api-key": "a3c3c520c39c95288cb353da5328ee89d87c7928d2f9013b66f66832ab3a2c90f849222cce7ff73b811041231c8cd0b2778ef206ac825571cabab7cd8fd99b3a",
                     "authorization": accessToken,
                     "x-client-id": id
                 },
@@ -242,7 +242,7 @@ const ChamCong = ({ navigation }) => {
                 method: 'POST',
                 headers: {
                     "Content-Type": "application/json",
-                    "x-api-key": "d420e946ae282dfadafede6b060ae66e3ffd2a9cddfe3dc9b4cd070f98ad4985aeab65e2751677f21f91f34c2a22a1f95bf0b330fd2eb0dfb2c1fb53a7c8d97a",
+                    "x-api-key": "a3c3c520c39c95288cb353da5328ee89d87c7928d2f9013b66f66832ab3a2c90f849222cce7ff73b811041231c8cd0b2778ef206ac825571cabab7cd8fd99b3a",
                     "authorization": accessToken,
                     "x-client-id": id
                 },
@@ -275,7 +275,7 @@ const ChamCong = ({ navigation }) => {
                 method: 'POST',
                 headers: {
                     "Content-Type": "application/json",
-                    "x-api-key": "d420e946ae282dfadafede6b060ae66e3ffd2a9cddfe3dc9b4cd070f98ad4985aeab65e2751677f21f91f34c2a22a1f95bf0b330fd2eb0dfb2c1fb53a7c8d97a",
+                    "x-api-key": "a3c3c520c39c95288cb353da5328ee89d87c7928d2f9013b66f66832ab3a2c90f849222cce7ff73b811041231c8cd0b2778ef206ac825571cabab7cd8fd99b3a",
                     "authorization": accessToken,
                     "x-client-id": id
                 },
@@ -308,7 +308,7 @@ const ChamCong = ({ navigation }) => {
                 method: 'POST',
                 headers: {
                     "Content-Type": "application/json",
-                    "x-api-key": "d420e946ae282dfadafede6b060ae66e3ffd2a9cddfe3dc9b4cd070f98ad4985aeab65e2751677f21f91f34c2a22a1f95bf0b330fd2eb0dfb2c1fb53a7c8d97a",
+                    "x-api-key": "a3c3c520c39c95288cb353da5328ee89d87c7928d2f9013b66f66832ab3a2c90f849222cce7ff73b811041231c8cd0b2778ef206ac825571cabab7cd8fd99b3a",
                     "authorization": accessToken,
                     "x-client-id": id
                 },
